@@ -133,8 +133,6 @@ export function Motion({ children }: { children: ReactNode }) {
         captions: [...element.querySelectorAll<HTMLElement>("[data-caption]")],
         floats: [...element.querySelectorAll<HTMLElement>("[data-float]")],
       }));
-      const heroArt = document.querySelector<HTMLElement>(".hero-art");
-      const heroCopy = document.querySelector<HTMLElement>(".hero-content");
       const parallax = [
         ...document.querySelectorAll<HTMLElement>("[data-parallax]"),
       ];
@@ -147,31 +145,6 @@ export function Motion({ children }: { children: ReactNode }) {
       const finePointer = window.matchMedia(
         "(hover: hover) and (pointer: fine)",
       );
-      // Move only the artwork inside its clipped frame.
-      const onHeroPointer = (event: PointerEvent) => {
-        if (!heroArt || !finePointer.matches || event.pointerType === "touch")
-          return;
-        const bounds = heroArt.getBoundingClientRect();
-        heroArt.style.setProperty(
-          "--hero-pointer-x",
-          String(((event.clientX - bounds.left) / bounds.width - 0.5) * 10) +
-            "px",
-        );
-        heroArt.style.setProperty(
-          "--hero-pointer-y",
-          String(((event.clientY - bounds.top) / bounds.height - 0.5) * 8) +
-            "px",
-        );
-      };
-      const resetHeroPointer = () => {
-        heroArt?.style.removeProperty("--hero-pointer-x");
-        heroArt?.style.removeProperty("--hero-pointer-y");
-      };
-      heroArt?.addEventListener("pointermove", onHeroPointer, {
-        passive: true,
-      });
-      heroArt?.addEventListener("pointerleave", resetHeroPointer);
-      heroArt?.addEventListener("pointercancel", resetHeroPointer);
       const magneticCleanups = [
         ...document.querySelectorAll<HTMLElement>(".button .button-label"),
       ].map((label) => {
@@ -277,15 +250,6 @@ export function Motion({ children }: { children: ReactNode }) {
           "--reading-progress",
           String(clamp(scroll / Math.max(1, documentHeight - height))),
         );
-        if (heroArt && scroll < height * 1.5) {
-          heroCopy?.style.setProperty(
-            "--hero-exit",
-            String(ease(range(scroll / height, 0.04, 0.7))),
-          );
-          const image = heroArt.querySelector("img");
-          if (image)
-            image.style.transform = `translate3d(0,${Math.min(scroll * 0.035, heroArt.clientHeight * 0.035)}px,0) scale(1.02)`;
-        }
         let settling = false;
         scenes.forEach((scene, sceneIndex) => {
           const rect = sceneRects[sceneIndex];
@@ -417,10 +381,6 @@ export function Motion({ children }: { children: ReactNode }) {
         window.removeEventListener("click", onAnchor);
         observer.disconnect();
         magneticCleanups.forEach((cleanup) => cleanup());
-        heroArt?.removeEventListener("pointermove", onHeroPointer);
-        heroArt?.removeEventListener("pointerleave", resetHeroPointer);
-        heroArt?.removeEventListener("pointercancel", resetHeroPointer);
-        resetHeroPointer();
         marqueeAnimation?.updatePlaybackRate(1);
         marquee?.closest("[data-marquee]")?.classList.remove("is-in-view");
         inkLines.forEach((element) =>
@@ -439,8 +399,6 @@ export function Motion({ children }: { children: ReactNode }) {
             element.removeAttribute("style"),
           );
         });
-        heroArt?.querySelector("img")?.style.removeProperty("transform");
-        heroCopy?.style.removeProperty("--hero-exit");
         parallax.forEach((element) =>
           element
             .querySelectorAll("img")

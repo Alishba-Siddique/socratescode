@@ -220,75 +220,46 @@ export default function Home() {
       <div className="reading-progress" aria-hidden="true" />
       <main id="main">
         <section className="hero" id="home" aria-labelledby="hero-title">
-          <a
-            className="hero-seal"
-            href="#practice"
-            aria-label="Question, trace, understand: try the thinking lab"
-          >
-            <svg viewBox="0 0 100 100" aria-hidden="true">
-              <defs>
-                <path
-                  id="hero-seal-path"
-                  d="M50,50 m-38,0 a38,38 0 1,1 76,0 a38,38 0 1,1 -76,0"
-                />
-              </defs>
-              <text>
-                <textPath href="#hero-seal-path" textLength="238">
-                  QUESTION. TRACE. UNDERSTAND.{" "}
-                </textPath>
-              </text>
-            </svg>
-            <span aria-hidden="true">?</span>
-          </a>
           <div className="hero-content content-width">
             <p className="hero-kicker">
-              <span /> A LEARNING LAB FOR THE CURIOUS
+              <span /> PROGRAMMING LOGIC, MADE UNDERSTANDABLE
             </p>
-            <h1 id="hero-title" aria-label="Independent thinking.">
+            <h1 id="hero-title">
               <span className="hero-line">
-                <span className="hero-word">Independent</span>
+                <span className="hero-word">Learn to code.</span>
               </span>{" "}
               <span className="hero-line hero-line-accent">
-                <span className="hero-word">thinking.</span>
+                <span className="hero-word">Think for yourself.</span>
               </span>
             </h1>
-            <div className="hero-details">
-              <p className="hero-description">
-                The future belongs to those who ask why.
-                <br />
-                Learn to code. Build the mind behind it.
-              </p>
-              <div className="hero-actions">
-                <a className="button button-dark" href="#practice">
-                  <AnimatedLabel>Start thinking</AnimatedLabel>
-                  <span className="hero-button-arrow" aria-hidden="true">
-                    &#8599;
-                  </span>
-                </a>
-                <a className="button button-outline" href="#platform">
-                  <AnimatedLabel>Explore the platform</AnimatedLabel>
-                </a>
-              </div>
-              <ThinkingPreview />
+            <p className="hero-description">
+              Build programming skills through guided questions, visual code
+              tracing, and practical challenges. Understand how your solution
+              works, one step at a time.
+            </p>
+            <div className="hero-actions">
+              <a className="button button-dark" href="#practice">
+                <AnimatedLabel>Try a coding challenge</AnimatedLabel>
+                <span aria-hidden="true">&#8599;</span>
+              </a>
+              <a className="button button-outline" href="#platform">
+                <AnimatedLabel>Explore the platform</AnimatedLabel>
+              </a>
             </div>
           </div>
-          <div className="hero-art" data-ambient>
-            <Art
-              name="hero"
-              alt="Socrates typing at a stone desk, with code on the laptop screen facing him"
-              priority
-            />
+          <div className="hero-lab">
+            <div className="hero-lab-caption">
+              <span>LESS GUESSWORK. MORE UNDERSTANDING.</span>
+              <span>
+                AN INTERACTIVE PREVIEW <i />
+              </span>
+            </div>
+            <ThinkingPreview />
           </div>
-          <div className="hero-art-caption" aria-hidden="true">
-            <span>FIG. 01</span>
-            <span>ANCIENT QUESTIONS. NEW POSSIBILITIES.</span>
-          </div>
-          <div className="hero-foot">
-            <span>HUMAN REASONING. COMPUTATIONAL RIGOR.</span>
-            <a href="#platform" aria-label="Scroll to explore the platform">
-              SCROLL TO DISCOVER <span aria-hidden="true">&#8595;</span>
-            </a>
-          </div>
+          <p className="hero-audience">
+            For curious learners, growing developers, and teams building
+            stronger foundations.
+          </p>
         </section>
 
         <section
@@ -523,54 +494,57 @@ export default function Home() {
         </section>
 
         <section className="judgment" aria-labelledby="judgment-title">
-          <div className="judgment-topline" data-reveal>
-            <span>THE SOCRATES CODE DIFFERENCE</span>
-            <span>THINK DEEPER. BUILD BETTER.</span>
-          </div>
-          <div
-            className="judgment-art"
-            data-image-reveal
-            data-ambient
-            data-parallax="0.12"
-          >
-            <Art
-              name="judgment"
-              alt="Socrates teaching two students to code, pointing to the laptop screen"
-            />
-          </div>
           <div className="judgment-copy" data-reveal>
-            <span className="judgment-index" aria-hidden="true">
-              01 / THE MIND BEHIND THE CODE
-            </span>
+            <span className="eyebrow">THE SOCRATESCODE APPROACH</span>
             <h2 id="judgment-title">
-              <span className="judgment-heading-lead">
-                Code is
-                <br />
-                everywhere.
-              </span>{" "}
-              <span className="judgment-heading-accent">
-                Understanding
-                <br />
-                is everything.
-              </span>
+              Code is everywhere.
+              <br />
+              <em>Understanding is everything.</em>
             </h2>
             <p>
-              Go beyond the right answer.
-              <br />
-              Build the reasoning that gets you there.
+              Go beyond the right answer. Learn to explain your decisions, spot
+              mistakes, and approach the next problem with confidence.
             </p>
-            <a className="judgment-link" href="#curriculum">
-              <AnimatedLabel>Explore the method</AnimatedLabel>
-              <span aria-hidden="true">&#8599;</span>
-            </a>
           </div>
-          <div className="judgment-bottomline" data-reveal>
-            <span>FROM KNOWING WHAT TO KNOWING WHY.</span>
-            <span className="judgment-path" aria-hidden="true">
-              <i />
-              QUESTION<span>&#8594;</span>REASON<span>&#8594;</span>UNDERSTAND
-            </span>
+          <div className="reasoning-path">
+            <article data-reveal>
+              <span className="reasoning-number">01</span>
+              <h3>Question the logic.</h3>
+              <p>
+                Start with a small challenge. Predict the result before running
+                the code.
+              </p>
+              <span className="reasoning-example">
+                What changes on the next line?
+              </span>
+            </article>
+            <article data-reveal>
+              <span className="reasoning-number">02</span>
+              <h3>See every step.</h3>
+              <p>
+                Follow variables and decisions. Find exactly where your
+                reasoning needs a second look.
+              </p>
+              <span className="reasoning-example">
+                Trace it. Test your assumption.
+              </span>
+            </article>
+            <article data-reveal>
+              <span className="reasoning-number">03</span>
+              <h3>Make it your own.</h3>
+              <p>
+                Modify the solution and explain why it works. Bring that
+                understanding to a new problem.
+              </p>
+              <span className="reasoning-example">
+                A correct answer. A clear reason.
+              </span>
+            </article>
           </div>
+          <a className="judgment-link button button-dark" href="#curriculum">
+            <AnimatedLabel>Explore the learning method</AnimatedLabel>
+            <span aria-hidden="true">&#8599;</span>
+          </a>
         </section>
 
         <section

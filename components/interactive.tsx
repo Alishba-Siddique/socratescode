@@ -60,7 +60,7 @@ export function Header() {
       </a>
       <div className="nav-shell">
         <a className="wordmark" href="#home" onClick={() => setOpen(false)}>
-          SocratesCode
+          socratescode
         </a>
         <nav className="desktop-nav" aria-label="Main navigation">
           <a href="#platform">
@@ -550,22 +550,24 @@ export function TraceDemo() {
   );
 }
 
-/** A live preview progresses only while visible without shifting the layout. */
+/** Autoplay demonstrates the method; visitors can pause or choose any stage. */
 export function ThinkingPreview() {
   const ref = useRef<HTMLDivElement>(null);
   const [step, setStep] = useState(0);
+  const [playing, setPlaying] = useState(true);
   useEffect(() => {
     let visible = false;
     let timer: ReturnType<typeof setInterval> | undefined;
     const sync = () => {
       clearInterval(timer);
-      if (visible && !document.hidden) {
-        timer = setInterval(() => setStep((value) => (value + 1) % 3), 2400);
+      if (visible && !document.hidden && playing) {
+        timer = setInterval(() => setStep((value) => (value + 1) % 3), 4000);
       }
     };
     const observer = new IntersectionObserver(
       ([entry]) => {
         visible = entry.isIntersecting;
+        ref.current?.classList.toggle("is-in-view", visible);
         sync();
       },
       { threshold: 0.15 },
@@ -577,49 +579,148 @@ export function ThinkingPreview() {
       observer.disconnect();
       document.removeEventListener("visibilitychange", sync);
     };
-  }, []);
+  }, [playing]);
   const states = [
-    { title: "What happens next?", code: "total = 1 + 2 + 3", result: "?" },
     {
-      title: "Follow the reasoning.",
-      code: "1 + 2 = 3; 3 + 3 = 6",
-      result: "6",
+      name: "Predict",
+      title: "What will this print?",
+      body: "Read the loop. Before running it, make a prediction about the final value of total.",
+      result: "?",
+      note: "Your prediction comes first.",
     },
-    { title: "Now you know why.", code: "print(total)", result: "6" },
+    {
+      name: "Trace",
+      title: "Follow what changes.",
+      body: "Each pass adds the next number to total. Follow the value from 0 to 1, then 3, then 6.",
+      result: "0 → 1 → 3 → 6",
+      note: "Three passes. One visible path.",
+    },
+    {
+      name: "Understand",
+      title: "Know why the answer is 6.",
+      body: "The loop adds 1, 2, and 3. The result is 6 because total keeps its value between passes.",
+      result: "6",
+      note: "You can explain the result.",
+    },
   ];
+  const select = (index: number) => {
+    setPlaying(false);
+    setStep(index);
+  };
+  const onTabKey = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
+    const next =
+      event.key === "ArrowRight"
+        ? (index + 1) % 3
+        : event.key === "ArrowLeft"
+          ? (index + 2) % 3
+          : event.key === "Home"
+            ? 0
+            : event.key === "End"
+              ? 2
+              : null;
+    if (next === null) return;
+    event.preventDefault();
+    select(next);
+    ref.current
+      ?.querySelector<HTMLButtonElement>("#hero-preview-tab-" + next)
+      ?.focus();
+  };
   return (
     <div
       className="thinking-preview"
       ref={ref}
       data-preview-step={step}
-      aria-label="A looping preview of predicting, tracing, and understanding code"
+      data-preview-mode={playing ? "autoplay" : "paused"}
     >
       <div className="thinking-preview-top">
-        <span className="live-dot" /> A LITTLE LOGIC, LIVE{" "}
-        <span>0{step + 1} / 03</span>
-      </div>
-      <div className="thinking-preview-body" key={step}>
-        <div>
-          <p>{states[step].title}</p>
-          <code>
-            {states[step].code}
-            <span className="code-caret" aria-hidden="true" />
-          </code>
-        </div>
-        <span
-          className="thinking-output"
-          aria-label={"Output: " + states[step].result}
-        >
-          {states[step].result}
+        <span>
+          <i className="live-dot" /> THE THINKING LAB
         </span>
+        <button
+          type="button"
+          onClick={() => setPlaying((value) => !value)}
+          aria-label={playing ? "Pause preview" : "Play preview"}
+        >
+          {playing ? "Pause preview" : "Play preview"}
+          <span aria-hidden="true">{playing ? "‖" : "▷"}</span>
+        </button>
       </div>
-      <div className="thinking-steps" aria-hidden="true">
-        {["Predict", "Trace", "Understand"].map((label, index) => (
-          <span key={label} className={step === index ? "is-active" : ""}>
-            <i key={step} />
-            {label}
-          </span>
+      <div
+        className="thinking-steps"
+        role="tablist"
+        aria-label="Preview stages"
+      >
+        {states.map((state, index) => (
+          <button
+            key={state.name}
+            type="button"
+            role="tab"
+            id={"hero-preview-tab-" + index}
+            aria-controls="hero-preview-panel"
+            aria-selected={step === index}
+            tabIndex={step === index ? 0 : -1}
+            className={step === index ? "is-active" : ""}
+            onClick={() => select(index)}
+            onKeyDown={(event) => onTabKey(event, index)}
+          >
+            <span>0{index + 1}</span>
+            {state.name}
+            <i key={step + "-" + playing} />
+          </button>
         ))}
+      </div>
+      <div
+        className="thinking-preview-body"
+        id="hero-preview-panel"
+        role="tabpanel"
+        aria-labelledby={"hero-preview-tab-" + step}
+      >
+        <div className="preview-code">
+          <span className="preview-file">a_small_question.py</span>
+          <pre aria-label="Python code: initialize total to zero, add each number in 1, 2, 3, then print total">
+            <code>
+              {[
+                "total = 0",
+                "for number in [1, 2, 3]:",
+                "    total += number",
+                "print(total)",
+              ].map((line, index) => (
+                <span
+                  key={line}
+                  className={
+                    (step === 1 && index === 2) || (step === 2 && index === 3)
+                      ? "code-is-active"
+                      : ""
+                  }
+                >
+                  <i aria-hidden="true">{index + 1}</i>
+                  {line}
+                </span>
+              ))}
+            </code>
+          </pre>
+          <span className="preview-code-note">
+            A small example. A useful way to think.
+          </span>
+        </div>
+        <div
+          className="preview-explanation"
+          key={step}
+          aria-live={playing ? "off" : "polite"}
+        >
+          <h2>{states[step].title}</h2>
+          <p>{states[step].body}</p>
+          <div className="preview-result">
+            <span
+              className={
+                step === 1 ? "thinking-output is-trace" : "thinking-output"
+              }
+            >
+              {states[step].result}
+            </span>
+            <span>{states[step].note}</span>
+          </div>
+        </div>
       </div>
     </div>
   );

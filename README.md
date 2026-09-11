@@ -36,7 +36,7 @@ Animations are always enabled: Lenis, scroll scenes, CSS reveals, and the laptop
 - A pinned editorial sequence with separate copy and artwork columns, three text transitions, and a final composition.
 - Parallax galleries, large text reveals, and a cinematic academy image expanding to fill the viewport.
 - Original Socrates illustrations, including two new ivory-and-cocoa laptop and mentoring scenes with code confined to interior displays.
-- A live three-step hero code preview, pulsing indicators, staggered hero words, and continuous artwork zoom within fixed frames. The incorrect laptop GIF has been retired.
+- An interactive three-step hero preview, pulsing indicators, readable headline entrances, and contained artwork motion in supporting sections. The incorrect laptop GIF has been retired.
 - Five PRIMM stages advance and reverse with scroll; tabs remain clickable and keyboard accessible.
 - The practice demo loops automatically while visible. Choosing a prediction or using a control stops autoplay; Try it yourself starts a fresh manual exercise, and Watch walkthrough restarts the loop.
 - Responsive navigation, descriptive metadata, and locally hosted artwork and fonts.
@@ -73,4 +73,4 @@ Use the Next.js framework preset with `npm run build` and the default output dir
 
 Section layout and motion refinements live in `app/sections.css`, which reserves separate space for copy and artwork at desktop and mobile sizes. The current development preview is http://localhost:3000.
 
-The hero and understanding section use an editorial composition in `app/hero.css`: oversized masked typography, a rotating question seal, contained pointer movement, a staged image reveal, and stacked mobile layouts. The original laptop artwork is reused without overlays on the laptop or hands.
+The hero and understanding section are defined in `app/hero.css`. Centered, readable copy introduces a live learning preview with keyboard-accessible Predict, Trace, and Understand tabs, autoplay, and a pause control. The understanding section explains three concrete learning outcomes without a split-image layout. Hero copy remains fully visible while scrolling; Lenis continues to smooth wheel input and anchor navigation.

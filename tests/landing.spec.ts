@@ -7,7 +7,7 @@ test("navigation destinations and locally served images are valid", async ({
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-    "Independent thinking.",
+    "Learn to code. Think for yourself.",
   );
   const missingTargets = await page
     .locator('a[href^="#"]')
@@ -35,15 +35,28 @@ test("the PRIMM tabs support pointer and keyboard selection", async ({
 }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
-  await page.getByRole("tab", { name: /Investigate/ }).click();
-  await expect(page.getByRole("tabpanel")).toContainText(
+  await page
+    .locator("#curriculum")
+    .getByRole("tab", { name: /Investigate/ })
+    .click();
+  await expect(page.locator("#curriculum").getByRole("tabpanel")).toContainText(
     "Follow every change.",
   );
-  await page.getByRole("tab", { name: /Investigate/ }).press("ArrowRight");
-  await expect(page.getByRole("tab", { name: /Modify/ })).toBeFocused();
-  await expect(page.getByRole("tabpanel")).toContainText("Change one thing.");
-  await page.getByRole("tab", { name: /Modify/ }).press("End");
-  await expect(page.getByRole("tabpanel")).toContainText(
+  await page
+    .locator("#curriculum")
+    .getByRole("tab", { name: /Investigate/ })
+    .press("ArrowRight");
+  await expect(
+    page.locator("#curriculum").getByRole("tab", { name: /Modify/ }),
+  ).toBeFocused();
+  await expect(page.locator("#curriculum").getByRole("tabpanel")).toContainText(
+    "Change one thing.",
+  );
+  await page
+    .locator("#curriculum")
+    .getByRole("tab", { name: /Modify/ })
+    .press("End");
+  await expect(page.locator("#curriculum").getByRole("tabpanel")).toContainText(
     "Make the logic yours.",
   );
 });
@@ -283,7 +296,7 @@ test("Lenis eases real wheel input and anchors finish at their destination", asy
         .locator(".hero-content")
         .evaluate((el) => Number(getComputedStyle(el).opacity)),
     )
-    .toBeLessThan(0.1);
+    .toBe(1);
   await page
     .getByRole("navigation", { name: "Main navigation" })
     .getByRole("link", { name: "Our method" })
@@ -350,7 +363,7 @@ test("touch scrolling animates mobile scenes and navigation works at phone sizes
           .locator(".hero-content")
           .evaluate((el) => Number(getComputedStyle(el).opacity)),
       )
-      .toBeLessThan(0.8);
+      .toBe(1);
     await page.getByRole("button", { name: "Open menu" }).tap();
     await page
       .getByRole("navigation", { name: "Mobile navigation" })
@@ -411,10 +424,10 @@ test("animations always run despite system settings and old saved preferences", 
   await expect(page.locator("html")).toHaveClass(/motion-ready/);
   await expect(page.locator("html")).toHaveClass(/lenis/);
   await expect(page.locator(".motion-toggle")).toHaveCount(0);
-  await expect(page.locator(".hero-art img")).toBeVisible();
+  await expect(page.locator(".thinking-preview")).toBeVisible();
   expect(
     await page
-      .locator(".hero-art")
+      .locator(".thinking-preview")
       .evaluate((el) => getComputedStyle(el).animationName),
   ).not.toBe("none");
   await page.mouse.move(1100, 600);
@@ -439,13 +452,13 @@ test("animations always run despite system settings and old saved preferences", 
         .locator(".hero-content")
         .evaluate((el) => Number(getComputedStyle(el).opacity)),
     )
-    .toBeLessThan(0.1);
+    .toBe(1);
   await page.emulateMedia({ reducedMotion: "no-preference" });
   await page.emulateMedia({ reducedMotion: "reduce" });
   await expect(page.locator("html")).toHaveClass(/motion-ready/);
   await page.reload();
   await expect(page.locator("html")).toHaveClass(/lenis/);
-  await expect(page.locator(".hero-art img")).toBeVisible();
+  await expect(page.locator(".thinking-preview")).toBeVisible();
 });
 
 test("scroll advances all five learning stages and reverses without losing manual navigation", async ({
@@ -466,19 +479,28 @@ test("scroll advances all five learning stages and reverses without losing manua
       });
     }, index);
     await expect(
-      page.getByRole("tab", { name: new RegExp(names[index]) }),
+      page
+        .locator("#curriculum")
+        .getByRole("tab", { name: new RegExp(names[index]) }),
     ).toHaveAttribute("aria-selected", "true");
     expect(
       (await page.locator(".curriculum-sticky").boundingBox())!.y,
     ).toBeCloseTo(0, 0);
   }
-  await page.getByRole("tab", { name: /Make/ }).click();
-  await expect(page.getByRole("tabpanel")).toContainText(
+  await page.locator("#curriculum").getByRole("tab", { name: /Make/ }).click();
+  await expect(page.locator("#curriculum").getByRole("tabpanel")).toContainText(
     "Make the logic yours.",
   );
-  await page.getByRole("tab", { name: /Make/ }).press("ArrowLeft");
-  await expect(page.getByRole("tab", { name: /Modify/ })).toBeFocused();
-  await expect(page.getByRole("tabpanel")).toContainText("Change one thing.");
+  await page
+    .locator("#curriculum")
+    .getByRole("tab", { name: /Make/ })
+    .press("ArrowLeft");
+  await expect(
+    page.locator("#curriculum").getByRole("tab", { name: /Modify/ }),
+  ).toBeFocused();
+  await expect(page.locator("#curriculum").getByRole("tabpanel")).toContainText(
+    "Change one thing.",
+  );
 });
 
 test("practice walkthrough loops while visible and hands control to the visitor", async ({
@@ -525,9 +547,9 @@ for (const viewport of [
     await page.goto("/");
     await expect(page.locator("html")).toHaveClass(/motion-ready/);
     const pairs = [
-      [".hero-content", ".hero-art"],
+      [".hero-content", ".hero-lab"],
       [".principles-content", ".principles-art"],
-      [".judgment-copy", ".judgment-art"],
+      [".judgment-copy", ".reasoning-path"],
       ...[1, 2, 3, 4].map((n) => [".gallery-copy", `.gallery-art-${n}`]),
     ];
     for (const [copy, art] of pairs) {
@@ -559,7 +581,7 @@ for (const viewport of [
         index,
       );
       await expect(
-        page.locator('[role="tab"][aria-selected="true"]'),
+        page.locator('#curriculum [role="tab"][aria-selected="true"]'),
       ).toContainText(
         ["Predict", "Run", "Investigate", "Modify", "Make"][index],
       );
@@ -708,12 +730,11 @@ test("artwork columns retain their width and reveal loaded images on desktop and
   page,
 }) => {
   await page.goto("/");
-  await expect(page.locator(".wordmark")).toHaveText("Socrates-code");
+  await expect(page.locator(".wordmark")).toHaveText("socratescode");
   await expect(page.locator('img[src$=".gif"]')).toHaveCount(0);
   for (const width of [1830, 390, 320]) {
     await page.setViewportSize({ width, height: 900 });
     for (const selector of [
-      ".judgment-art",
       ".principles-art",
       ".gallery-art-1",
       ".feature-media",
@@ -751,81 +772,71 @@ test("artwork columns retain their width and reveal loaded images on desktop and
   }
 });
 
-test("hero preview loops while the artwork visibly moves and pauses off screen", async ({
+test("learning preview loops, pauses off screen, and lets visitors take control", async ({
   page,
 }) => {
-  await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
   const preview = page.locator(".thinking-preview");
-  const picture = page.locator(".hero-art img");
-  const initial = await preview.getAttribute("data-preview-step");
-  await expect
-    .poll(() => preview.getAttribute("data-preview-step"), { timeout: 4000 })
-    .not.toBe(initial);
-  await expect
-    .poll(() => preview.getAttribute("data-preview-step"), { timeout: 6500 })
-    .toBe(initial);
-  const scale = await picture.evaluate((el) => getComputedStyle(el).scale);
-  await expect
-    .poll(() => picture.evaluate((el) => getComputedStyle(el).scale))
-    .not.toBe(scale);
+  await preview.scrollIntoViewIfNeeded();
+  for (const step of ["1", "2", "0"]) {
+    await expect(preview).toHaveAttribute("data-preview-step", step, {
+      timeout: 5000,
+    });
+  }
+  await preview.getByRole("tab", { name: /Trace/ }).click();
+  await expect(preview).toHaveAttribute("data-preview-mode", "paused");
+  await expect(preview.getByRole("tabpanel")).toContainText(
+    "Follow what changes.",
+  );
+  await page.waitForTimeout(4300);
+  await expect(preview).toHaveAttribute("data-preview-step", "1");
+  await preview.getByRole("tab", { name: /Trace/ }).press("ArrowRight");
+  await expect(preview.getByRole("tab", { name: /Understand/ })).toBeFocused();
+  await expect(preview.getByRole("tabpanel")).toContainText(
+    "Know why the answer is 6.",
+  );
+  await preview.getByRole("button", { name: "Play preview" }).click();
+  await expect(preview).toHaveAttribute("data-preview-mode", "autoplay");
   await page.locator(".judgment").scrollIntoViewIfNeeded();
-  await expect
-    .poll(() =>
-      picture.evaluate((el) => getComputedStyle(el).animationPlayState),
-    )
-    .toBe("paused");
   const paused = await preview.getAttribute("data-preview-step");
-  await page.waitForTimeout(2700);
+  await page.waitForTimeout(4300);
   await expect(preview).toHaveAttribute("data-preview-step", paused!);
 });
 
-test("editorial hero keeps its oversized words clear of the image and supports pointer motion", async ({
+test("product hero and approach stay readable without split-image layouts at every screen size", async ({
   page,
 }) => {
   await page.goto("/");
-  await page.waitForTimeout(2000);
+  await page.waitForTimeout(1500);
+  await expect(page.locator(".hero img, .judgment img")).toHaveCount(0);
   for (const width of [1830, 1440, 1024, 844, 390, 320]) {
     await page.setViewportSize({ width, height: 1000 });
     await page.evaluate(() => scrollTo(0, 0));
     const layout = await page.evaluate(() => {
-      const art = document.querySelector(".hero-art")!.getBoundingClientRect();
-      const words = [...document.querySelectorAll(".hero-word")].map((el) =>
-        el.getBoundingClientRect(),
-      );
+      const title = document
+        .querySelector("#hero-title")!
+        .getBoundingClientRect();
+      const copy = document.querySelector(".hero-content")!;
+      const lab = document.querySelector(".hero-lab")!.getBoundingClientRect();
       return {
-        fits: words.every((word) => word.left >= 0 && word.right <= innerWidth),
-        overlaps: words.some(
-          (word) =>
-            Math.min(word.right, art.right) > Math.max(word.left, art.left) &&
-            Math.min(word.bottom, art.bottom) > Math.max(word.top, art.top),
-        ),
+        fits: title.left >= 0 && title.right <= innerWidth,
+        height: title.height,
+        overlap: copy.getBoundingClientRect().bottom > lab.top,
+        opacity: getComputedStyle(copy).opacity,
         overflow: document.documentElement.scrollWidth > innerWidth,
+        approachSize: parseFloat(
+          getComputedStyle(document.querySelector("#judgment-title")!).fontSize,
+        ),
       };
     });
     expect(layout.fits, "heading width at " + width).toBeTruthy();
-    expect(layout.overlaps, "heading/art overlap at " + width).toBeFalsy();
+    expect(layout.height).toBeLessThan(200);
+    expect(layout.overlap, "copy/preview overlap at " + width).toBeFalsy();
+    expect(layout.opacity).toBe("1");
     expect(layout.overflow, "overflow at " + width).toBeFalsy();
+    expect(layout.approachSize).toBeLessThanOrEqual(56);
   }
   await page.setViewportSize({ width: 1440, height: 1000 });
-  const art = page.locator(".hero-art");
-  await art.hover({ position: { x: 40, y: 40 } });
-  await expect
-    .poll(() =>
-      art.evaluate((el) => el.style.getPropertyValue("--hero-pointer-x")),
-    )
-    .not.toBe("");
-  await page.mouse.move(5, 5);
-  await expect
-    .poll(() =>
-      art.evaluate((el) => el.style.getPropertyValue("--hero-pointer-x")),
-    )
-    .toBe("");
-  const seal = page.locator(".hero-seal svg");
-  const before = await seal.evaluate((el) => getComputedStyle(el).transform);
-  await expect
-    .poll(() => seal.evaluate((el) => getComputedStyle(el).transform))
-    .not.toBe(before);
   await page.locator(".judgment-link").click();
   await expect(page).toHaveURL(/#curriculum$/);
   await expect(page.locator("#curriculum-title")).toBeInViewport();
