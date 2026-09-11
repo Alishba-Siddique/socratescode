@@ -524,7 +524,7 @@ export default function Home() {
 
         <section className="judgment" aria-labelledby="judgment-title">
           <div className="judgment-topline" data-reveal>
-            <span>THE SOCRATES-CODE DIFFERENCE</span>
+            <span>THE SOCRATES CODE DIFFERENCE</span>
             <span>THINK DEEPER. BUILD BETTER.</span>
           </div>
           <div

@@ -60,7 +60,7 @@ export function Header() {
       </a>
       <div className="nav-shell">
         <a className="wordmark" href="#home" onClick={() => setOpen(false)}>
-          Socrates-code
+          SocratesCode
         </a>
         <nav className="desktop-nav" aria-label="Main navigation">
           <a href="#platform">
