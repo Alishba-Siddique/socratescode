@@ -60,7 +60,7 @@ export function Header() {
       </a>
       <div className="nav-shell">
         <a className="wordmark" href="#home" onClick={() => setOpen(false)}>
-          Socrates<span>_code</span>
+          Socrates-code
         </a>
         <nav className="desktop-nav" aria-label="Main navigation">
           <a href="#platform">
@@ -192,6 +192,21 @@ export function Curriculum() {
   const [active, setActive] = useState(0);
   const tabs = useRef<(HTMLButtonElement | null)[]>([]);
   const stage = stages[active];
+  useEffect(() => {
+    const onStage = (event: Event) => {
+      const index = (event as CustomEvent<number>).detail;
+      if (Number.isInteger(index) && index >= 0 && index < stages.length)
+        setActive(index);
+    };
+    window.addEventListener("socrates:stage", onStage);
+    return () => window.removeEventListener("socrates:stage", onStage);
+  }, []);
+  const selectStage = (index: number) => {
+    setActive(index);
+    window.dispatchEvent(
+      new CustomEvent("socrates:select-stage", { detail: index }),
+    );
+  };
   const onKey = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
     let next = index;
     if (event.key === "ArrowRight") next = (index + 1) % stages.length;
@@ -201,11 +216,15 @@ export function Curriculum() {
     else if (event.key === "End") next = stages.length - 1;
     else return;
     event.preventDefault();
-    setActive(next);
+    selectStage(next);
     tabs.current[next]?.focus();
   };
   return (
     <div className="curriculum-widget">
+      <div className="curriculum-scroll-hint">
+        <span>SCROLL TO EXPLORE</span>
+        <span>{stage.number} / 05</span>
+      </div>
       <div
         className="stage-tabs"
         role="tablist"
@@ -223,7 +242,7 @@ export function Curriculum() {
             aria-controls={`panel-${index}`}
             tabIndex={active === index ? 0 : -1}
             onKeyDown={(event) => onKey(event, index)}
-            onClick={() => setActive(index)}
+            onClick={() => selectStage(index)}
           >
             <span>{item.number}</span>
             {item.name}
@@ -234,14 +253,13 @@ export function Curriculum() {
         ))}
       </div>
       <div
-        key={active}
         className="stage-panel"
         role="tabpanel"
         id={`panel-${active}`}
         aria-labelledby={`tab-${active}`}
         tabIndex={0}
       >
-        <div className="stage-description">
+        <div key={`description-${active}`} className="stage-description">
           <span className="eyebrow">THE PRIMM FRAMEWORK / {stage.number}</span>
           <h3>{stage.title}</h3>
           <p>{stage.body}</p>
@@ -249,7 +267,7 @@ export function Curriculum() {
             Try it for yourself <span aria-hidden="true">↗</span>
           </a>
         </div>
-        <div className="code-preview">
+        <div key={`code-${active}`} className="code-preview">
           <div className="code-topline">
             <span className="status-dot" />
             a_small_beginning.py<span>PYTHON</span>
@@ -303,6 +321,9 @@ const trace = [
 ];
 
 export function TraceDemo() {
+  const demoRef = useRef<HTMLDivElement>(null);
+  const [manual, setManual] = useState(false);
+  const [visible, setVisible] = useState(false);
   const [prediction, setPrediction] = useState<number | null>(null);
   const [step, setStep] = useState(0);
   const [hint, setHint] = useState(false);
@@ -313,8 +334,70 @@ export function TraceDemo() {
     setStep(0);
     setHint(false);
   };
+  useEffect(() => {
+    const element = demoRef.current;
+    if (!element) return;
+    let intersecting = false;
+    const sync = () => setVisible(intersecting && !document.hidden);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        intersecting = entry.isIntersecting;
+        sync();
+      },
+      { threshold: 0.2 },
+    );
+    observer.observe(element);
+    document.addEventListener("visibilitychange", sync);
+    return () => {
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", sync);
+    };
+  }, []);
+  useEffect(() => {
+    if (manual || !visible) return;
+    setPrediction(null);
+    setStep(0);
+    setHint(false);
+    let phase = 0;
+    let timer: ReturnType<typeof setTimeout>;
+    const advance = () => {
+      if (phase === 0) {
+        setPrediction(6);
+        setStep(0);
+      } else if (phase < 5) setStep(phase);
+      else {
+        setPrediction(null);
+        setStep(0);
+      }
+      const delay = phase === 4 ? 2200 : 1200;
+      phase = (phase + 1) % 6;
+      timer = setTimeout(advance, delay);
+    };
+    timer = setTimeout(advance, 1200);
+    return () => clearTimeout(timer);
+  }, [manual, visible]);
   return (
-    <div className="trace-demo">
+    <div
+      ref={demoRef}
+      className="trace-demo"
+      data-demo-mode={manual ? "manual" : "autoplay"}
+    >
+      <div className="demo-playback">
+        <span>
+          <i aria-hidden="true" />
+          {manual ? "YOUR TURN" : "LIVE WALKTHROUGH"}
+        </span>
+        <button
+          type="button"
+          onClick={() => {
+            reset();
+            setManual(!manual);
+          }}
+        >
+          {manual ? "Watch walkthrough" : "Try it yourself"}
+          <span aria-hidden="true"> ↗</span>
+        </button>
+      </div>
       <div className="demo-topline">
         <span>
           <span className="status-dot" />
@@ -389,14 +472,22 @@ export function TraceDemo() {
             key={value}
             className={prediction === value ? "selected" : ""}
             aria-pressed={prediction === value}
-            disabled={step > 0}
-            onClick={() => setPrediction(value)}
+            disabled={manual && step > 0}
+            onClick={() => {
+              setManual(true);
+              setStep(0);
+              setPrediction(value);
+            }}
           >
             {value}
           </button>
         ))}
       </div>
-      <div className="demo-feedback" role="status" aria-live="polite">
+      <div
+        className="demo-feedback"
+        role="status"
+        aria-live={manual ? "polite" : "off"}
+      >
         {prediction === null
           ? "Begin with a prediction. The reasoning is yours."
           : finished
@@ -418,7 +509,10 @@ export function TraceDemo() {
       <div className="demo-controls">
         <button
           className="text-link"
-          onClick={() => setHint(!hint)}
+          onClick={() => {
+            setManual(true);
+            setHint(!hint);
+          }}
           aria-expanded={hint}
         >
           {hint ? "Hide question" : "Ask a question"}{" "}
@@ -427,7 +521,10 @@ export function TraceDemo() {
         <div>
           <button
             className="reset-button"
-            onClick={reset}
+            onClick={() => {
+              setManual(true);
+              reset();
+            }}
             aria-label="Reset exercise"
           >
             ↺ <span>Reset</span>
@@ -435,9 +532,10 @@ export function TraceDemo() {
           <button
             className="button button-dark"
             disabled={prediction === null || finished}
-            onClick={() =>
-              setStep((value) => Math.min(value + 1, trace.length - 1))
-            }
+            onClick={() => {
+              setManual(true);
+              setStep((value) => Math.min(value + 1, trace.length - 1));
+            }}
           >
             {finished
               ? "Trace complete"
@@ -447,6 +545,81 @@ export function TraceDemo() {
             <span aria-hidden="true">→</span>
           </button>
         </div>
+      </div>
+    </div>
+  );
+}
+
+/** A live preview progresses only while visible without shifting the layout. */
+export function ThinkingPreview() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [step, setStep] = useState(0);
+  useEffect(() => {
+    let visible = false;
+    let timer: ReturnType<typeof setInterval> | undefined;
+    const sync = () => {
+      clearInterval(timer);
+      if (visible && !document.hidden) {
+        timer = setInterval(() => setStep((value) => (value + 1) % 3), 2400);
+      }
+    };
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        visible = entry.isIntersecting;
+        sync();
+      },
+      { threshold: 0.15 },
+    );
+    if (ref.current) observer.observe(ref.current);
+    document.addEventListener("visibilitychange", sync);
+    return () => {
+      clearInterval(timer);
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", sync);
+    };
+  }, []);
+  const states = [
+    { title: "What happens next?", code: "total = 1 + 2 + 3", result: "?" },
+    {
+      title: "Follow the reasoning.",
+      code: "1 + 2 = 3; 3 + 3 = 6",
+      result: "6",
+    },
+    { title: "Now you know why.", code: "print(total)", result: "6" },
+  ];
+  return (
+    <div
+      className="thinking-preview"
+      ref={ref}
+      data-preview-step={step}
+      aria-label="A looping preview of predicting, tracing, and understanding code"
+    >
+      <div className="thinking-preview-top">
+        <span className="live-dot" /> A LITTLE LOGIC, LIVE{" "}
+        <span>0{step + 1} / 03</span>
+      </div>
+      <div className="thinking-preview-body" key={step}>
+        <div>
+          <p>{states[step].title}</p>
+          <code>
+            {states[step].code}
+            <span className="code-caret" aria-hidden="true" />
+          </code>
+        </div>
+        <span
+          className="thinking-output"
+          aria-label={"Output: " + states[step].result}
+        >
+          {states[step].result}
+        </span>
+      </div>
+      <div className="thinking-steps" aria-hidden="true">
+        {["Predict", "Trace", "Understand"].map((label, index) => (
+          <span key={label} className={step === index ? "is-active" : ""}>
+            <i key={step} />
+            {label}
+          </span>
+        ))}
       </div>
     </div>
   );

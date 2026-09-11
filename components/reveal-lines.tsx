@@ -11,6 +11,7 @@ export function RevealLines({ lines }: { lines: string[] }) {
             style={{ "--line-delay": `${index * 120}ms` } as CSSProperties}
           >
             {line}
+            {index < lines.length - 1 ? " " : ""}
           </span>
         </span>
       ))}

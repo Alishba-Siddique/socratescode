@@ -1,7 +1,8 @@
 ﻿import type { Metadata } from "next";
-import { motionPreferenceScript } from "@/components/motion-preference";
 import "lenis/dist/lenis.css";
 import "./globals.css";
+import "./sections.css";
+import "./hero.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -18,9 +19,9 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/images/socratic-laptop-hero.webp",
-        width: 1536,
-        height: 1024,
+        url: "/images/socratic-coder-v2.webp",
+        width: 1254,
+        height: 1254,
         alt: "Original SocratesCode artwork: Socrates working on a laptop",
       },
     ],
@@ -31,10 +32,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: motionPreferenceScript }} />
-      </head>
+    <html lang="en" data-motion="on" suppressHydrationWarning>
       <body>{children}</body>
     </html>
   );

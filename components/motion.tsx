@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import Lenis from "lenis";
 
 const clamp = (value: number, min = 0, max = 1) =>
@@ -11,13 +11,10 @@ const ease = (value: number) => value * value * (3 - 2 * value);
 
 /** Lenis and scroll scenes share one RAF clock; layout work runs only when dirty. */
 export function Motion({ children }: { children: ReactNode }) {
-  const [enabled, setEnabled] = useState<boolean | null>(null);
   useEffect(() => {
     const root = document.documentElement;
-    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
     const header = document.querySelector<HTMLElement>(".site-header");
-    // Header legibility also matters when animation is disabled.
+    // Keep navigation legible over every section.
     const syncHeader = () =>
       header?.classList.toggle("is-scrolled", window.scrollY > 24);
     window.addEventListener("scroll", syncHeader, { passive: true });
@@ -25,18 +22,10 @@ export function Motion({ children }: { children: ReactNode }) {
     let cleanup = () => {};
     const setup = () => {
       cleanup();
-      const preference = root.dataset.motionPreference ?? "system";
-      const active =
-        preference === "on" || (preference !== "off" && !media.matches);
-      root.dataset.motion = active ? "on" : "off";
-      setEnabled(active);
-      if (!active) {
-        root.classList.remove("motion-ready");
-        return;
-      }
+      root.dataset.motion = "on";
       const lenis = new Lenis({
         autoRaf: false,
-        // The site preference already resolves OS settings and explicit opt-in.
+        // The landing page always animates, as requested by the brand owner.
         respectReducedMotion: false,
         lerp: 0.095,
         smoothWheel: true,
@@ -86,6 +75,9 @@ export function Motion({ children }: { children: ReactNode }) {
         if (!target) return;
         event.preventDefault();
         if (location.hash !== url.hash) history.pushState(null, "", url.hash);
+        // Native focus jumps and viewport changes can precede the scroll event.
+        // Refresh actual scroll and dimensions before resolving an element target.
+        lenis.resize();
         lenis.scrollTo(target, {
           onComplete: () => {
             const priorTabIndex = target.getAttribute("tabindex");
@@ -105,6 +97,13 @@ export function Motion({ children }: { children: ReactNode }) {
       const observer = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
+            if (entry.target.hasAttribute("data-ambient")) {
+              entry.target.classList.toggle("is-in-view", entry.isIntersecting);
+            }
+            if (entry.target.hasAttribute("data-marquee")) {
+              entry.target.classList.toggle("is-in-view", entry.isIntersecting);
+              return;
+            }
             if (entry.isIntersecting) {
               entry.target.classList.add("is-revealed");
             } else if (
@@ -118,15 +117,18 @@ export function Motion({ children }: { children: ReactNode }) {
         { threshold: 0.08, rootMargin: "0px 0px -5% 0px" },
       );
       document
-        .querySelectorAll<HTMLElement>("[data-reveal]")
+        .querySelectorAll<HTMLElement>(
+          "[data-reveal], [data-image-reveal], [data-marquee], [data-ambient]",
+        )
         .forEach((element) => observer.observe(element));
       const scenes = [
         ...document.querySelectorAll<HTMLElement>("[data-scene]"),
       ].map((element) => ({
         element,
         progress: -1,
+        activeStage: -1,
         sticky: element.querySelector<HTMLElement>(
-          ".story-sticky, .study-sticky, .practice-sticky",
+          ".story-sticky, .study-sticky, .practice-sticky, .curriculum-sticky",
         ),
         captions: [...element.querySelectorAll<HTMLElement>("[data-caption]")],
         floats: [...element.querySelectorAll<HTMLElement>("[data-float]")],
@@ -136,45 +138,99 @@ export function Motion({ children }: { children: ReactNode }) {
       const parallax = [
         ...document.querySelectorAll<HTMLElement>("[data-parallax]"),
       ];
-      const statements = [
-        ...document.querySelectorAll<HTMLElement>("[data-drift]"),
+      const inkLines = [
+        ...document.querySelectorAll<HTMLElement>("[data-ink]"),
       ];
-      const cards = [...document.querySelectorAll<HTMLElement>("[data-tilt]")];
-      const cardEvents = cards.map((card) => {
+      const marquee = document.querySelector<HTMLElement>(".marquee-track");
+      const marqueeAnimation = marquee?.getAnimations()[0];
+      let marqueeRate = 1;
+      const finePointer = window.matchMedia(
+        "(hover: hover) and (pointer: fine)",
+      );
+      // Move only the artwork inside its clipped frame.
+      const onHeroPointer = (event: PointerEvent) => {
+        if (!heroArt || !finePointer.matches || event.pointerType === "touch")
+          return;
+        const bounds = heroArt.getBoundingClientRect();
+        heroArt.style.setProperty(
+          "--hero-pointer-x",
+          String(((event.clientX - bounds.left) / bounds.width - 0.5) * 10) +
+            "px",
+        );
+        heroArt.style.setProperty(
+          "--hero-pointer-y",
+          String(((event.clientY - bounds.top) / bounds.height - 0.5) * 8) +
+            "px",
+        );
+      };
+      const resetHeroPointer = () => {
+        heroArt?.style.removeProperty("--hero-pointer-x");
+        heroArt?.style.removeProperty("--hero-pointer-y");
+      };
+      heroArt?.addEventListener("pointermove", onHeroPointer, {
+        passive: true,
+      });
+      heroArt?.addEventListener("pointerleave", resetHeroPointer);
+      heroArt?.addEventListener("pointercancel", resetHeroPointer);
+      const magneticCleanups = [
+        ...document.querySelectorAll<HTMLElement>(".button .button-label"),
+      ].map((label) => {
+        const button = label.closest<HTMLElement>(".button")!;
         let bounds: DOMRect | null = null;
         const reset = () => {
           bounds = null;
-          ["--tilt-x", "--tilt-y", "--pointer-x", "--pointer-y"].forEach(
-            (name) => card.style.removeProperty(name),
-          );
+          label.style.removeProperty("--magnet-x");
+          label.style.removeProperty("--magnet-y");
         };
         const enter = () => {
-          bounds = card.getBoundingClientRect();
+          bounds = button.getBoundingClientRect();
         };
         const move = (event: PointerEvent) => {
           if (!finePointer.matches || event.pointerType === "touch") return;
-          bounds ??= card.getBoundingClientRect();
-          const x = clamp((event.clientX - bounds.left) / bounds.width) * 2 - 1;
-          const y = clamp((event.clientY - bounds.top) / bounds.height) * 2 - 1;
-          card.style.setProperty("--tilt-x", `${-y * 2.5}deg`);
-          card.style.setProperty("--tilt-y", `${x * 3.5}deg`);
-          card.style.setProperty("--pointer-x", `${x * 3}px`);
-          card.style.setProperty("--pointer-y", `${y * 3}px`);
+          bounds ??= button.getBoundingClientRect();
+          label.style.setProperty(
+            "--magnet-x",
+            `${clamp((event.clientX - bounds.left) / bounds.width - 0.5, -0.5, 0.5) * 7}px`,
+          );
+          label.style.setProperty(
+            "--magnet-y",
+            `${clamp((event.clientY - bounds.top) / bounds.height - 0.5, -0.5, 0.5) * 5}px`,
+          );
         };
-        card.addEventListener("pointerenter", enter);
-        card.addEventListener("pointermove", move, { passive: true });
-        card.addEventListener("pointerleave", reset);
-        card.addEventListener("pointercancel", reset);
-        card.addEventListener("blur", reset);
+        button.addEventListener("pointerenter", enter);
+        button.addEventListener("pointermove", move, { passive: true });
+        button.addEventListener("pointerleave", reset);
+        button.addEventListener("pointercancel", reset);
+        button.addEventListener("blur", reset);
         return () => {
           reset();
-          card.removeEventListener("pointerenter", enter);
-          card.removeEventListener("pointermove", move);
-          card.removeEventListener("pointerleave", reset);
-          card.removeEventListener("pointercancel", reset);
-          card.removeEventListener("blur", reset);
+          button.removeEventListener("pointerenter", enter);
+          button.removeEventListener("pointermove", move);
+          button.removeEventListener("pointerleave", reset);
+          button.removeEventListener("pointercancel", reset);
+          button.removeEventListener("blur", reset);
         };
       });
+      const onStageSelect = (event: Event) => {
+        const index = (event as CustomEvent<number>).detail;
+        const scene = scenes.find(
+          (item) => item.element.dataset.scene === "curriculum",
+        );
+        if (!scene || !Number.isInteger(index) || index < 0 || index > 4)
+          return;
+        const rect = scene.element.getBoundingClientRect();
+        const progress = (index + 0.35) / 5;
+        scene.progress = progress;
+        // Tabs jump within the pinned section without scrolling past other panels.
+        lenis.scrollTo(
+          window.scrollY +
+            rect.top +
+            (rect.height - (scene.sticky?.clientHeight ?? innerHeight)) *
+              progress,
+          { immediate: true },
+        );
+      };
+      window.addEventListener("socrates:select-stage", onStageSelect);
       let frame = 0;
       let stopped = false;
       let previousTime = 0;
@@ -183,6 +239,12 @@ export function Motion({ children }: { children: ReactNode }) {
         frame = 0;
         if (stopped || document.hidden) return;
         lenis.raf(time);
+        const targetRate = 1 + clamp(Math.abs(lenis.velocity) * 0.055, 0, 2);
+        const nextRate = marqueeRate + (targetRate - marqueeRate) * 0.12;
+        if (marqueeAnimation && Math.abs(nextRate - marqueeRate) > 0.001) {
+          marqueeRate = nextRate;
+          marqueeAnimation.updatePlaybackRate(marqueeRate);
+        }
         if (!dirty) {
           previousTime = time;
           frame = requestAnimationFrame(update);
@@ -196,7 +258,6 @@ export function Motion({ children }: { children: ReactNode }) {
         // Time-based smoothing keeps the same choreography on 60 Hz and 120 Hz screens.
         const blend = 1 - Math.exp(-elapsed / 70);
         const height = window.innerHeight;
-        const width = window.innerWidth;
         const scroll = window.scrollY;
         const documentHeight = root.scrollHeight;
         // Read layout before writing any transforms.
@@ -207,9 +268,9 @@ export function Motion({ children }: { children: ReactNode }) {
           (scene) => scene.sticky?.clientHeight || height,
         );
         const artRects = parallax.map((element) =>
-          element.parentElement!.getBoundingClientRect(),
+          element.getBoundingClientRect(),
         );
-        const statementRects = statements.map((element) =>
+        const inkRects = inkLines.map((element) =>
           element.getBoundingClientRect(),
         );
         root.style.setProperty(
@@ -221,7 +282,9 @@ export function Motion({ children }: { children: ReactNode }) {
             "--hero-exit",
             String(ease(range(scroll / height, 0.04, 0.7))),
           );
-          heroArt.style.transform = `translate3d(0,${scroll * 0.19}px,0) scale(${1 + clamp(scroll / height) * 0.045})`;
+          const image = heroArt.querySelector("img");
+          if (image)
+            image.style.transform = `translate3d(0,${Math.min(scroll * 0.035, heroArt.clientHeight * 0.035)}px,0) scale(1.02)`;
         }
         let settling = false;
         scenes.forEach((scene, sceneIndex) => {
@@ -252,18 +315,29 @@ export function Motion({ children }: { children: ReactNode }) {
               const leave = ease(range(p, start + 0.17, start + 0.24));
               const opacity = enter * (1 - leave);
               caption.style.opacity = String(opacity);
-              caption.style.transform = `translate3d(0,${(1 - enter) * 45 - leave * 35}px,0)`;
+              caption.style.transform = `translate3d(0,${(1 - enter) * 20 - leave * 16}px,0)`;
               caption.style.visibility = opacity < 0.01 ? "hidden" : "visible";
             });
             const finale = ease(range(p, 0.73, 0.91));
             scene.element.style.setProperty("--finale", String(finale));
             scene.floats.forEach((image, index) => {
-              const drift = (p - 0.38) * Number(image.dataset.float) * height;
-              const scale = 1.2 - p * 0.65;
-              const turn = Math.sin(index * 2) * (p - 0.38) * 7;
-              image.style.transform = `perspective(1600px) translate3d(${Math.sin(index * 2) * p * width * 0.08}px,${drift}px,0) rotateY(${turn * 1.8}deg) rotate(${turn}deg) scale(${scale})`;
+              const drift = (p - 0.5) * (index % 2 ? -32 : 32);
+              image.style.transform = `translate3d(0,${drift}px,0)`;
               image.style.opacity = String(1 - finale);
             });
+          }
+          if (scene.element.dataset.scene === "curriculum") {
+            const index = Math.min(4, Math.floor(p * 5));
+            scene.element.style.setProperty(
+              "--stage-progress",
+              String(clamp(p * 5 - index)),
+            );
+            if (index !== scene.activeStage) {
+              scene.activeStage = index;
+              window.dispatchEvent(
+                new CustomEvent("socrates:stage", { detail: index }),
+              );
+            }
           }
           if (scene.element.dataset.scene === "study") {
             scene.element.style.setProperty(
@@ -290,27 +364,22 @@ export function Motion({ children }: { children: ReactNode }) {
           const rect = artRects[index];
           if (rect.bottom > 0 && rect.top < height) {
             const distance = height / 2 - rect.top - rect.height / 2;
-            element.style.transform = `translate3d(0,${distance * Number(element.dataset.parallax)}px,0)`;
-            if (element.classList.contains("gallery-art"))
-              element.style.setProperty(
-                "--gallery-turn",
-                `${clamp(distance / height, -1, 1) * Number(element.dataset.parallax) * 18}deg`,
-              );
+            const limit = Math.min(28, rect.height * 0.045);
+            const offset = clamp(
+              distance * Number(element.dataset.parallax),
+              -limit,
+              limit,
+            );
+            element.querySelectorAll("img").forEach((image) => {
+              image.style.transform = `translate3d(0,${offset}px,0) scale(1.12)`;
+            });
           }
         });
-        statements.forEach((element, index) => {
-          const rect = statementRects[index];
-          if (rect.bottom > 0 && rect.top < height) {
-            const p = clamp((height * 0.55 - rect.top) / height, -1, 1);
-            element.style.setProperty(
-              "--word-shift",
-              `${p * Number(element.dataset.drift) * 45}px`,
-            );
-            element.style.setProperty(
-              "--portrait-turn",
-              `${p * Number(element.dataset.drift) * 5}deg`,
-            );
-          }
+        inkLines.forEach((element, index) => {
+          const progress = clamp(
+            (height * 0.86 - inkRects[index].top) / (height * 0.46),
+          );
+          element.style.setProperty("--ink-progress", `${progress * 100}%`);
         });
         dirty = dirty || settling;
         frame = requestAnimationFrame(update);
@@ -347,11 +416,21 @@ export function Motion({ children }: { children: ReactNode }) {
         lenis.destroy();
         window.removeEventListener("click", onAnchor);
         observer.disconnect();
+        magneticCleanups.forEach((cleanup) => cleanup());
+        heroArt?.removeEventListener("pointermove", onHeroPointer);
+        heroArt?.removeEventListener("pointerleave", resetHeroPointer);
+        heroArt?.removeEventListener("pointercancel", resetHeroPointer);
+        resetHeroPointer();
+        marqueeAnimation?.updatePlaybackRate(1);
+        marquee?.closest("[data-marquee]")?.classList.remove("is-in-view");
+        inkLines.forEach((element) =>
+          element.style.removeProperty("--ink-progress"),
+        );
         resizeObserver.disconnect();
         window.removeEventListener("scroll", schedule);
         window.removeEventListener("resize", schedule);
         document.removeEventListener("visibilitychange", onVisibility);
-        cardEvents.forEach((remove) => remove());
+        window.removeEventListener("socrates:select-stage", onStageSelect);
         root.classList.remove("motion-ready");
         root.style.removeProperty("--reading-progress");
         scenes.forEach((scene) => {
@@ -360,59 +439,20 @@ export function Motion({ children }: { children: ReactNode }) {
             element.removeAttribute("style"),
           );
         });
-        heroArt?.removeAttribute("style");
+        heroArt?.querySelector("img")?.style.removeProperty("transform");
         heroCopy?.style.removeProperty("--hero-exit");
-        parallax.forEach((element) => element.removeAttribute("style"));
-        statements.forEach((element) => {
-          element.style.removeProperty("--word-shift");
-          element.style.removeProperty("--portrait-turn");
-        });
+        parallax.forEach((element) =>
+          element
+            .querySelectorAll("img")
+            .forEach((image) => image.style.removeProperty("transform")),
+        );
       };
     };
     setup();
-    media.addEventListener("change", setup);
-    window.addEventListener("socrates:motionchange", setup);
     return () => {
       cleanup();
-      media.removeEventListener("change", setup);
-      window.removeEventListener("socrates:motionchange", setup);
       window.removeEventListener("scroll", syncHeader);
     };
   }, []);
-  const toggleMotion = () => {
-    const preference = enabled ? "off" : "on";
-    document.documentElement.dataset.motionPreference = preference;
-    try {
-      localStorage.setItem("socrates-motion", preference);
-    } catch {
-      /* Private browsing can block storage. */
-    }
-    const url = new URL(location.href);
-    url.searchParams.delete("motion");
-    history.replaceState(history.state, "", url);
-    window.dispatchEvent(new Event("socrates:motionchange"));
-  };
-  return (
-    <>
-      {children}
-      {enabled !== null && (
-        <button
-          className="motion-toggle"
-          type="button"
-          aria-pressed={enabled}
-          aria-label={enabled ? "Pause animations" : "Enable animations"}
-          onClick={toggleMotion}
-        >
-          <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            {enabled ? (
-              <path d="M5 3v10M11 3v10" stroke="currentColor" strokeWidth="2" />
-            ) : (
-              <path d="m5 3 8 5-8 5V3Z" fill="currentColor" />
-            )}
-          </svg>
-          <span>{enabled ? "Animations on" : "Enable animations"}</span>
-        </button>
-      )}
-    </>
-  );
+  return children;
 }

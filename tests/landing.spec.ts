@@ -226,73 +226,30 @@ test("mobile navigation closes on selection and Escape, with no horizontal overf
   }
 });
 
-test("reduced motion removes pinned scroll distances and preserves readable content", async ({
-  page,
-}) => {
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.goto("/");
-  await expect(page.locator("html")).not.toHaveClass(/motion-ready/);
-  await expect(page.locator('[data-caption="1"]')).toBeVisible();
-  expect(
-    await page
-      .locator(".story-sticky")
-      .evaluate((el) => getComputedStyle(el).position),
-  ).not.toBe("sticky");
-  expect(
-    await page
-      .locator(".study-sticky")
-      .evaluate((el) => getComputedStyle(el).position),
-  ).not.toBe("sticky");
-});
-
-test("headings reveal line by line and feature cards respond to pointer depth", async ({
+test("headings reveal cleanly and feature images stay inside their frames", async ({
   page,
 }) => {
   await page.goto("/");
-  const card = page.locator("[data-tilt]").first();
+  const card = page.locator(".feature-card").first();
   await card.scrollIntoViewIfNeeded();
   await expect(card).toHaveClass(/is-revealed/);
-  const heading = page.locator("#platform-title .reveal-line-inner");
-  await expect(heading).toHaveCount(2);
-  await expect
-    .poll(() =>
-      heading.last().evaluate((el) => Number(getComputedStyle(el).opacity)),
-    )
-    .toBe(1);
-  await card.hover({ position: { x: 45, y: 55 } });
-  await expect
-    .poll(() => card.evaluate((el) => el.style.getPropertyValue("--tilt-y")))
-    .not.toBe("");
-  await page.mouse.move(5, 5);
-  await expect
-    .poll(() => card.evaluate((el) => el.style.getPropertyValue("--tilt-y")))
-    .toBe("");
-});
-
-test("reduced motion can be enabled at runtime and keeps the header legible", async ({
-  page,
-}) => {
-  await page.goto("/");
-  await page.evaluate(() =>
-    window.scrollTo({ top: 1200, behavior: "instant" }),
-  );
-  await expect(page.locator(".site-header")).toHaveClass(/is-scrolled/);
   await expect
     .poll(() =>
       page
-        .locator("html")
-        .evaluate((el) =>
-          Number(el.style.getPropertyValue("--reading-progress")),
-        ),
+        .locator("#platform-title .reveal-line-inner")
+        .last()
+        .evaluate((el) => Number(getComputedStyle(el).opacity)),
     )
-    .toBeGreaterThan(0);
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  await expect(page.locator("html")).not.toHaveClass(/motion-ready/);
-  await expect(page.locator(".motion-image")).toBeHidden();
-  await expect(page.locator(".motion-poster")).toBeVisible();
-  await expect(page.locator(".site-header")).toHaveClass(/is-scrolled/);
-  await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
-  await expect(page.locator(".site-header")).not.toHaveClass(/is-scrolled/);
+    .toBe(1);
+  const media = await card.locator(".feature-media").boundingBox();
+  const copy = await card.locator(".feature-copy").boundingBox();
+  expect(copy!.y).toBeGreaterThanOrEqual(media!.y + media!.height - 1);
+  await card.hover();
+  expect(
+    await card
+      .locator(".feature-media")
+      .evaluate((el) => getComputedStyle(el).overflow),
+  ).toBe("hidden");
 });
 
 test("Lenis eases real wheel input and anchors finish at their destination", async ({
@@ -340,9 +297,7 @@ test("Lenis eases real wheel input and anchors finish at their destination", asy
   expect(top).toBeLessThan(120);
 });
 
-test("reveals replay when scrolling back down and Lenis respects runtime motion preferences", async ({
-  page,
-}) => {
+test("reveals replay when scrolling back down", async ({ page }) => {
   await page.goto("/");
   const reveal = page.locator(".section-intro[data-reveal]").first();
   await reveal.scrollIntoViewIfNeeded();
@@ -352,8 +307,6 @@ test("reveals replay when scrolling back down and Lenis respects runtime motion 
   await reveal.scrollIntoViewIfNeeded();
   await expect(reveal).toHaveClass(/is-revealed/);
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await expect(page.locator("html")).not.toHaveClass(/lenis|motion-ready/);
-  await page.emulateMedia({ reducedMotion: "no-preference" });
   await expect(page.locator("html")).toHaveClass(/lenis/);
   await expect(page.locator("html")).toHaveClass(/motion-ready/);
 });
@@ -447,14 +400,18 @@ test("touch scrolling animates mobile scenes and navigation works at phone sizes
   }
 });
 
-test("visitors can enable full animation despite OS reduced motion and persist a pause", async ({
+test("animations always run despite system settings and old saved preferences", async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.goto("/?motion=on");
-  await expect(page.locator("html")).toHaveAttribute("data-motion", "on");
+  await page.addInitScript(() =>
+    localStorage.setItem("socrates-motion", "off"),
+  );
+  await page.goto("/?motion=off");
+  await expect(page.locator("html")).toHaveClass(/motion-ready/);
   await expect(page.locator("html")).toHaveClass(/lenis/);
-  await expect(page.locator(".motion-image")).toBeVisible();
+  await expect(page.locator(".motion-toggle")).toHaveCount(0);
+  await expect(page.locator(".hero-art img")).toBeVisible();
   expect(
     await page
       .locator(".hero-art")
@@ -483,22 +440,393 @@ test("visitors can enable full animation despite OS reduced motion and persist a
         .evaluate((el) => Number(getComputedStyle(el).opacity)),
     )
     .toBeLessThan(0.1);
-  await page.getByRole("button", { name: "Pause animations" }).click();
-  await expect(page.locator("html")).not.toHaveClass(/lenis|motion-ready/);
-  await expect(page.locator("html")).toHaveAttribute("data-motion", "off");
-  await expect(page.locator(".motion-image")).toBeHidden();
-  expect(
-    await page
-      .locator(".hero-art")
-      .evaluate((el) => getComputedStyle(el).animationName),
-  ).toBe("none");
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await expect(page.locator("html")).toHaveClass(/motion-ready/);
   await page.reload();
+  await expect(page.locator("html")).toHaveClass(/lenis/);
+  await expect(page.locator(".hero-art img")).toBeVisible();
+});
+
+test("scroll advances all five learning stages and reverses without losing manual navigation", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await expect(page.locator("html")).toHaveClass(/motion-ready/);
+  const names = ["Predict", "Run", "Investigate", "Modify", "Make"];
+  for (const index of [0, 1, 2, 3, 4, 3, 1, 0]) {
+    await page.locator("#curriculum").evaluate((el, index) => {
+      const sticky = el.querySelector(".curriculum-sticky")!;
+      window.scrollTo({
+        top:
+          scrollY +
+          el.getBoundingClientRect().top +
+          (el.clientHeight - sticky.clientHeight) * ((index + 0.4) / 5),
+        behavior: "instant",
+      });
+    }, index);
+    await expect(
+      page.getByRole("tab", { name: new RegExp(names[index]) }),
+    ).toHaveAttribute("aria-selected", "true");
+    expect(
+      (await page.locator(".curriculum-sticky").boundingBox())!.y,
+    ).toBeCloseTo(0, 0);
+  }
+  await page.getByRole("tab", { name: /Make/ }).click();
+  await expect(page.getByRole("tabpanel")).toContainText(
+    "Make the logic yours.",
+  );
+  await page.getByRole("tab", { name: /Make/ }).press("ArrowLeft");
+  await expect(page.getByRole("tab", { name: /Modify/ })).toBeFocused();
+  await expect(page.getByRole("tabpanel")).toContainText("Change one thing.");
+});
+
+test("practice walkthrough loops while visible and hands control to the visitor", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const demo = page.locator(".trace-demo");
+  await demo.scrollIntoViewIfNeeded();
+  await expect(demo).toHaveAttribute("data-demo-mode", "autoplay");
+  await expect(demo.locator(".demo-feedback")).toContainText(
+    "You understand it.",
+    { timeout: 12000 },
+  );
+  await expect(demo.locator(".demo-feedback")).toContainText(
+    "Begin with a prediction",
+    { timeout: 5000 },
+  );
+  await demo.getByRole("button", { name: "3", exact: true }).click();
+  await expect(demo).toHaveAttribute("data-demo-mode", "manual");
+  await demo.getByRole("button", { name: "Next step" }).click();
+  await page.waitForTimeout(1500);
+  await expect(demo.locator("tbody tr")).toHaveCount(2);
+  await demo.getByRole("button", { name: "Watch walkthrough" }).click();
+  await expect(demo).toHaveAttribute("data-demo-mode", "autoplay");
+  await expect(demo.locator(".demo-feedback")).toContainText("total is 1", {
+    timeout: 5000,
+  });
+  await demo.getByRole("button", { name: "Try it yourself" }).click();
+  await expect(demo).toHaveAttribute("data-demo-mode", "manual");
+  await expect(demo.locator("tbody tr")).toHaveCount(1);
+  await expect(demo.getByRole("button", { name: "Next step" })).toBeDisabled();
+});
+
+for (const viewport of [
+  { width: 1440, height: 1000 },
+  { width: 390, height: 844 },
+  { width: 320, height: 568 },
+  { width: 844, height: 390 },
+]) {
+  test(`copy stays clear of artwork and learning panels fit at ${viewport.width}x${viewport.height}`, async ({
+    page,
+  }) => {
+    await page.setViewportSize(viewport);
+    await page.goto("/");
+    await expect(page.locator("html")).toHaveClass(/motion-ready/);
+    const pairs = [
+      [".hero-content", ".hero-art"],
+      [".principles-content", ".principles-art"],
+      [".judgment-copy", ".judgment-art"],
+      ...[1, 2, 3, 4].map((n) => [".gallery-copy", `.gallery-art-${n}`]),
+    ];
+    for (const [copy, art] of pairs) {
+      const overlaps = await page.evaluate(
+        ([copy, art]) => {
+          const a = document.querySelector(copy)!.getBoundingClientRect();
+          const b = document.querySelector(art)!.getBoundingClientRect();
+          return (
+            Math.min(a.right, b.right) - Math.max(a.left, b.left) > 1 &&
+            Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 1
+          );
+        },
+        [copy, art],
+      );
+      expect(overlaps, `${copy} crosses ${art}`).toBeFalsy();
+    }
+    for (const index of [0, 2, 4]) {
+      await page.locator("#curriculum").evaluate(
+        (el, index) =>
+          window.scrollTo({
+            top:
+              scrollY +
+              el.getBoundingClientRect().top +
+              (el.clientHeight -
+                el.querySelector(".curriculum-sticky")!.clientHeight) *
+                ((index + 0.4) / 5),
+            behavior: "instant",
+          }),
+        index,
+      );
+      await expect(
+        page.locator('[role="tab"][aria-selected="true"]'),
+      ).toContainText(
+        ["Predict", "Run", "Investigate", "Modify", "Make"][index],
+      );
+      const title = await page.locator(".curriculum-heading").boundingBox();
+      const panel = await page.locator(".stage-panel").boundingBox();
+      expect(title!.y).toBeGreaterThanOrEqual(70);
+      expect(panel!.y + panel!.height).toBeLessThanOrEqual(viewport.height - 8);
+    }
+    await page.locator(".study-scene").evaluate((el) =>
+      window.scrollTo({
+        top:
+          scrollY +
+          el.getBoundingClientRect().top +
+          (el.clientHeight - el.querySelector(".study-sticky")!.clientHeight) *
+            0.7,
+        behavior: "instant",
+      }),
+    );
+    const title = await page.locator("#study-title").boundingBox();
+    const picture = await page.locator(".study-picture").boundingBox();
+    expect(title!.y + title!.height).toBeLessThanOrEqual(picture!.y);
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBeTruthy();
+  });
+}
+
+test("a prediction can take over while the automatic trace is already running", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const demo = page.locator(".trace-demo");
+  await demo.scrollIntoViewIfNeeded();
+  await expect(demo.locator(".demo-feedback")).toContainText("total is 1", {
+    timeout: 7000,
+  });
+  await demo.getByRole("button", { name: "0", exact: true }).click();
+  await expect(demo).toHaveAttribute("data-demo-mode", "manual");
   await expect(
-    page.getByRole("button", { name: "Enable animations" }),
-  ).toBeVisible();
-  await expect(page.locator("html")).not.toHaveClass(/motion-ready/);
-  await page.getByRole("button", { name: "Enable animations" }).click();
+    demo.getByRole("button", { name: "0", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await expect(demo.locator("tbody tr")).toHaveCount(1);
+  await page.waitForTimeout(1500);
+  await expect(demo.locator("tbody tr")).toHaveCount(1);
+});
+
+test("kinetic type animates only in view and headline ink responds to scroll", async ({
+  page,
+}) => {
+  await page.goto("/");
   await expect(page.locator("html")).toHaveClass(/motion-ready/);
-  await page.reload();
-  await expect(page.locator("html")).toHaveClass(/motion-ready/);
+  const ribbon = page.locator(".primm-marquee");
+  const track = page.locator(".marquee-track");
+  expect(await track.evaluate((el) => el.getAnimations()[0].playState)).toBe(
+    "paused",
+  );
+  await ribbon.scrollIntoViewIfNeeded();
+  await expect(ribbon).toHaveClass(/is-in-view/);
+  const first = await track.evaluate((el) => getComputedStyle(el).transform);
+  await expect
+    .poll(() => track.evaluate((el) => getComputedStyle(el).transform))
+    .not.toBe(first);
+  await page.mouse.move(1000, 600);
+  await page.mouse.wheel(0, 180);
+  await expect
+    .poll(() => track.evaluate((el) => el.getAnimations()[0].playbackRate))
+    .toBeGreaterThan(1.05);
+  await expect(page.locator("html")).not.toHaveClass(/lenis-scrolling/);
+  const ink = page.locator("[data-ink]").first();
+  await ink.evaluate((el) =>
+    scrollTo({
+      top: scrollY + el.getBoundingClientRect().top - innerHeight * 0.82,
+      behavior: "instant",
+    }),
+  );
+  await expect
+    .poll(() =>
+      ink.evaluate((el) =>
+        parseFloat(el.style.getPropertyValue("--ink-progress")),
+      ),
+    )
+    .toBeLessThan(25);
+  await ink.evaluate((el) =>
+    scrollTo({
+      top: scrollY + el.getBoundingClientRect().top - innerHeight * 0.28,
+      behavior: "instant",
+    }),
+  );
+  await expect
+    .poll(() =>
+      ink.evaluate((el) =>
+        parseFloat(el.style.getPropertyValue("--ink-progress")),
+      ),
+    )
+    .toBeGreaterThan(95);
+  await expect(ribbon).not.toHaveClass(/is-in-view/);
+});
+
+test("image curtains finish inside their frames and magnetic labels preserve button hit targets", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const media = page.locator(".feature-media").first();
+  await media.scrollIntoViewIfNeeded();
+  await expect(media).toHaveClass(/is-revealed/);
+  await expect
+    .poll(() =>
+      media.evaluate((el) => getComputedStyle(el, "::after").transform),
+    )
+    .toBe("matrix(1, 0, 0, 0, 0, 0)");
+  const button = page.locator(".hero-actions .button").first();
+  await button.scrollIntoViewIfNeeded();
+  const bounds = await button.boundingBox();
+  await button.hover({ position: { x: 14, y: 14 } });
+  await expect
+    .poll(() =>
+      button
+        .locator(".button-label")
+        .evaluate((el) => el.style.getPropertyValue("--magnet-x")),
+    )
+    .not.toBe("");
+  expect((await button.boundingBox())!.width).toBeCloseTo(bounds!.width, 0);
+  await page.mouse.move(5, 5);
+  await expect
+    .poll(() =>
+      button
+        .locator(".button-label")
+        .evaluate((el) => el.style.getPropertyValue("--magnet-x")),
+    )
+    .toBe("");
+  for (const width of [320, 390, 768, 1440]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.locator(".primm-marquee").scrollIntoViewIfNeeded();
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+      `overflow at ${width}`,
+    ).toBeTruthy();
+  }
+});
+
+test("artwork columns retain their width and reveal loaded images on desktop and mobile", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await expect(page.locator(".wordmark")).toHaveText("Socrates-code");
+  await expect(page.locator('img[src$=".gif"]')).toHaveCount(0);
+  for (const width of [1830, 390, 320]) {
+    await page.setViewportSize({ width, height: 900 });
+    for (const selector of [
+      ".judgment-art",
+      ".principles-art",
+      ".gallery-art-1",
+      ".feature-media",
+    ]) {
+      const art = page.locator(selector).first();
+      await art.scrollIntoViewIfNeeded();
+      await expect(art).toHaveClass(/is-revealed/);
+      expect(
+        (await art.boundingBox())!.width,
+        selector + " at " + width,
+      ).toBeGreaterThan(100);
+      await expect
+        .poll(() =>
+          art
+            .locator("img")
+            .evaluate(
+              (img) =>
+                img instanceof HTMLImageElement &&
+                img.complete &&
+                img.naturalWidth > 0,
+            ),
+        )
+        .toBeTruthy();
+      await expect
+        .poll(() =>
+          art.evaluate((el) => getComputedStyle(el, "::after").transform),
+        )
+        .toBe("matrix(1, 0, 0, 0, 0, 0)");
+    }
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBeTruthy();
+  }
+});
+
+test("hero preview loops while the artwork visibly moves and pauses off screen", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+  const preview = page.locator(".thinking-preview");
+  const picture = page.locator(".hero-art img");
+  const initial = await preview.getAttribute("data-preview-step");
+  await expect
+    .poll(() => preview.getAttribute("data-preview-step"), { timeout: 4000 })
+    .not.toBe(initial);
+  await expect
+    .poll(() => preview.getAttribute("data-preview-step"), { timeout: 6500 })
+    .toBe(initial);
+  const scale = await picture.evaluate((el) => getComputedStyle(el).scale);
+  await expect
+    .poll(() => picture.evaluate((el) => getComputedStyle(el).scale))
+    .not.toBe(scale);
+  await page.locator(".judgment").scrollIntoViewIfNeeded();
+  await expect
+    .poll(() =>
+      picture.evaluate((el) => getComputedStyle(el).animationPlayState),
+    )
+    .toBe("paused");
+  const paused = await preview.getAttribute("data-preview-step");
+  await page.waitForTimeout(2700);
+  await expect(preview).toHaveAttribute("data-preview-step", paused!);
+});
+
+test("editorial hero keeps its oversized words clear of the image and supports pointer motion", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page.waitForTimeout(2000);
+  for (const width of [1830, 1440, 1024, 844, 390, 320]) {
+    await page.setViewportSize({ width, height: 1000 });
+    await page.evaluate(() => scrollTo(0, 0));
+    const layout = await page.evaluate(() => {
+      const art = document.querySelector(".hero-art")!.getBoundingClientRect();
+      const words = [...document.querySelectorAll(".hero-word")].map((el) =>
+        el.getBoundingClientRect(),
+      );
+      return {
+        fits: words.every((word) => word.left >= 0 && word.right <= innerWidth),
+        overlaps: words.some(
+          (word) =>
+            Math.min(word.right, art.right) > Math.max(word.left, art.left) &&
+            Math.min(word.bottom, art.bottom) > Math.max(word.top, art.top),
+        ),
+        overflow: document.documentElement.scrollWidth > innerWidth,
+      };
+    });
+    expect(layout.fits, "heading width at " + width).toBeTruthy();
+    expect(layout.overlaps, "heading/art overlap at " + width).toBeFalsy();
+    expect(layout.overflow, "overflow at " + width).toBeFalsy();
+  }
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  const art = page.locator(".hero-art");
+  await art.hover({ position: { x: 40, y: 40 } });
+  await expect
+    .poll(() =>
+      art.evaluate((el) => el.style.getPropertyValue("--hero-pointer-x")),
+    )
+    .not.toBe("");
+  await page.mouse.move(5, 5);
+  await expect
+    .poll(() =>
+      art.evaluate((el) => el.style.getPropertyValue("--hero-pointer-x")),
+    )
+    .toBe("");
+  const seal = page.locator(".hero-seal svg");
+  const before = await seal.evaluate((el) => getComputedStyle(el).transform);
+  await expect
+    .poll(() => seal.evaluate((el) => getComputedStyle(el).transform))
+    .not.toBe(before);
+  await page.locator(".judgment-link").click();
+  await expect(page).toHaveURL(/#curriculum$/);
+  await expect(page.locator("#curriculum-title")).toBeInViewport();
 });

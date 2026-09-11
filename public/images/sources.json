@@ -11,12 +11,11 @@
     "socratic-academy.webp",
     "socratic-laptop-hero.webp",
     "socratic-laptop-study.webp",
-    "socratic-coding-academy.webp"
+    "socratic-coding-academy.webp",
+    "socratic-coder-v2.webp",
+    "socratic-mentoring-v2.webp"
   ],
   "animation": {
-    "file": "socratic-laptop-loop.gif",
-    "source": "socratic-laptop-study.webp",
-    "script": "scripts/animate-laptop.mjs",
-    "frames": 26
+    "implementation": "Contained CSS artwork motion and a separate live React code preview. The former laptop GIF is no longer used."
   }
 }

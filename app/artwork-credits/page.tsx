@@ -22,11 +22,11 @@ export default function ArtworkCredits() {
       <article>
         <h2>Original artwork</h2>
         <p>
-          The eight illustrations on this site were generated specifically for
+          The illustrations on this site were generated specifically for
           SocratesCode with AI image generation, from original written art
-          direction. Their classical painting style, muted teal palette, and
-          halftone textures connect ancient philosophical inquiry with
-          contemporary computing.
+          direction. Their classical painting style, warm ivory and cocoa
+          palette, and subtle canvas textures connect ancient philosophical
+          inquiry with contemporary computing.
         </p>
         <p>
           No Contra Labs, Pinterest, or museum images are used in the finished
@@ -37,11 +37,11 @@ export default function ArtworkCredits() {
       <article>
         <h2>Motion, made for the web</h2>
         <p>
-          The laptop animation combines an original illustration with a custom
-          perspective-aligned coding sequence. The image collages, text
-          transitions, and expanding academy scene respond directly to
-          scrolling. A still-image alternative and a simpler page layout respect
-          reduced-motion preferences.
+          The laptop scenes show code on the interior display, with hands
+          resting naturally on the keyboard. A separate live code preview loops
+          through prediction, tracing, and understanding. Slow artwork movement,
+          image reveals, kinetic typography, and expanding scenes accompany
+          scrolling.
         </p>
       </article>
       <article>

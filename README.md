@@ -24,20 +24,22 @@ Browser checks use an installed Chrome browser. On a machine without Chrome, ins
 
 Set `NEXT_PUBLIC_SITE_URL` to your deployed site's absolute URL before the production build to generate correct social-preview image URLs. No API keys or backend services are needed for this landing page.
 
-If system settings disable animations, open `http://localhost:3002/?motion=on` or select **Enable animations** in the page corner. The switch remembers your choice in this browser; **Animations on** pauses the effects. New visitors follow their system motion preference by default.
+Animations are always enabled: Lenis, scroll scenes, CSS reveals, and the laptop GIF run on every visit. System motion settings, old saved preferences, and `?motion=off` links do not disable them.
 
 ## Features
 
 - Lenis smooth wheel scrolling and in-page navigation, with native touch inertia on mobile.
 - Custom column-and-code-brackets logo, fixed navigation, reading progress, staggered line reveals, rolling button labels, and image wipe reveals.
-- Pointer-driven 3D feature cards and scroll-driven depth, rotation, and text drift.
+- Restrained line reveals, image curtain reveals, small image hover zooms, and parallax contained inside image frames.
+- A scroll-speed-responsive PRIMM type ribbon, scroll-filled editorial headlines, and subtle magnetic button labels on fine pointers. The ribbon pauses outside the viewport.
 - Warm ivory and the SocratesCode brand color `#754934`.
-- A pinned, scroll-scrubbed collage with independently moving images, three text transitions, and a final editorial composition.
+- A pinned editorial sequence with separate copy and artwork columns, three text transitions, and a final composition.
 - Parallax galleries, large text reveals, and a cinematic academy image expanding to fill the viewport.
-- Eight original Socrates illustrations, including Socrates using a laptop and teaching students to code.
-- A custom 26-frame looping laptop GIF, with typed code, a cursor, and output; a static alternative for reduced motion.
-- Keyboard-accessible PRIMM tabs and a functioning prediction, variable tracing, question, and reset demo.
-- Responsive navigation, reduced-motion layouts, descriptive metadata, and locally hosted artwork and fonts.
+- Original Socrates illustrations, including two new ivory-and-cocoa laptop and mentoring scenes with code confined to interior displays.
+- A live three-step hero code preview, pulsing indicators, staggered hero words, and continuous artwork zoom within fixed frames. The incorrect laptop GIF has been retired.
+- Five PRIMM stages advance and reverse with scroll; tabs remain clickable and keyboard accessible.
+- The practice demo loops automatically while visible. Choosing a prediction or using a control stops autoplay; Try it yourself starts a fresh manual exercise, and Watch walkthrough restarts the loop.
+- Responsive navigation, descriptive metadata, and locally hosted artwork and fonts.
 
 The learning exercise is a deterministic browser demonstration of the loop shown on the page. It does not execute arbitrary code, call an AI service, create accounts, or claim backend integration. The full platform remains in the separate `web-app` folder.
 
@@ -46,27 +48,29 @@ The learning exercise is a deterministic browser demonstration of the loop shown
 All final illustrations were generated using the built-in image generation tool from text prompts, with no input/reference images. They use classical philosophical imagery as a creative theme. No downloaded Contra, Pinterest, or museum art remains in `public/images`.
 
 - Final assets: `public/images/socratic-*.webp`.
-- Animated laptop: `public/images/socratic-laptop-loop.gif`.
-- Static animation poster: `public/images/socratic-laptop-poster.webp`.
+- Corrected laptop artwork: `public/images/socratic-coder-v2.webp`.
+- New teaching scene: `public/images/socratic-mentoring-v2.webp`.
 - Full original prompt set: `docs/artwork-prompts.json`.
 - Asset manifest: `public/images/sources.json`.
 - On-site attribution and inspiration note: `/artwork-credits`.
 - Self-hosted font licenses: `public/fonts/*-LICENSE.txt`.
 
-Rebuild the screen animation from its original base illustration:
-
-```sh
-npm run artwork:animate
-```
-
-The GIF is suitable as a standalone looping visual. The script preserves the generated illustration and composites only the custom screen animation.
+The earlier GIF and generation script are retained as unused source artifacts. The live site animates its artwork inside clipped frames and uses a separate HTML code preview.
 
 A concise portfolio credit: “SocratesCode — a Socratic coding lab. Layout and scroll storytelling inspired by Contra Labs; original AI-assisted illustrations, custom animations, and an interactive PRIMM demo.”
 
 ## Implementation
 
-`components/motion.tsx` uses one shared requestAnimationFrame loop and native sticky positioning. Scroll updates modify element styles without React re-renders. Time-based interpolation keeps motion consistent across screen refresh rates. Lenis shares the same frame clock; expensive layout reads run only while scrolling or scene interpolation is settling. The clock pauses while the document is hidden. A shared motion preference controls Lenis, CSS, scroll scenes, and the GIF. It follows `prefers-reduced-motion` unless the visitor explicitly enables or pauses animations. The preference is applied before paint and persists locally. Scroll reveals replay on re-entry. Phones use shorter sticky scenes, larger touch targets, and stacked code/trace panes.
+`components/motion.tsx` uses one shared requestAnimationFrame loop and native sticky positioning. Scroll updates modify element styles without React re-renders. Time-based interpolation keeps motion consistent across screen refresh rates. Lenis shares the same frame clock; expensive layout reads run only while scrolling or scene interpolation is settling. The clock pauses while the document is hidden. Animations always run; the previous preference switch and before-paint preference script have been removed. Scroll reveals replay on re-entry. Phones use shorter sticky scenes, larger touch targets, and stacked code/trace panes.
 
 The app uses strict TypeScript, React 19, and Tailwind CSS 4 with custom editorial CSS. Frontend work stays within `landing-page`; no backend or database dependencies were added. Root tracker checkboxes are unchanged because their instructions require verified, committed work and this task does not create a commit.
 
-Production builds use `.next-production`; the development server uses `.next`. This lets production checks run without overwriting a live development server cache. Current artwork is retained; picture composition and laptop-perspective revisions are deferred.
+Production builds use the standard `.next` output expected by Vercel; the development server uses `.next-dev`. This lets production checks run without overwriting a live development server cache. The laptop and mentoring artwork has been replaced with correctly oriented screen compositions.
+
+## Vercel
+
+Use the Next.js framework preset with `npm run build` and the default output directory (`.next`). If deploying this monorepo, set Root Directory to `landing-page`; if the repository contains the landing app at its root, leave Root Directory as `.`. Deploy a commit containing the updated `next.config.ts`.
+
+Section layout and motion refinements live in `app/sections.css`, which reserves separate space for copy and artwork at desktop and mobile sizes. The current development preview is http://localhost:3000.
+
+The hero and understanding section use an editorial composition in `app/hero.css`: oversized masked typography, a rotating question seal, contained pointer movement, a staged image reveal, and stacked mobile layouts. The original laptop artwork is reused without overlays on the laptop or hands.

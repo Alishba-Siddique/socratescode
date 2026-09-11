@@ -2469,88 +2469,6 @@ a:focus-visible .button-label > span {
     padding-top: 165px;
   }
 }
-html[data-motion="off"] {
-  scroll-behavior: auto;
-}
-html[data-motion="off"] *,
-html[data-motion="off"] *:before,
-html[data-motion="off"] *:after {
-  animation: none !important;
-  transition: none !important;
-  scroll-behavior: auto !important;
-}
-html[data-motion="off"] .hero-art {
-  transform: none !important;
-}
-html[data-motion="off"] .site-header {
-  animation: none;
-}
-html[data-motion="off"] .story-finale {
-  flex-wrap: wrap;
-}
-html[data-motion="off"] .story-captions > h2,
-html[data-motion="off"] .story-captions > p {
-  opacity: 1 !important;
-  visibility: visible !important;
-  transform: none !important;
-}
-html[data-motion="off"] .study-picture {
-  inset: 0;
-}
-html[data-motion="off"] .study-intro {
-  display: none;
-}
-html[data-motion="off"] .study-picture h2 {
-  white-space: normal;
-}
-html[data-motion="off"] .orbit-token {
-  display: none;
-}
-html[data-motion="off"] .practice-card-wrap {
-  transform: none !important;
-}
-@media (prefers-reduced-motion: reduce) {
-  html:not([data-motion]) {
-    scroll-behavior: auto;
-  }
-  html:not([data-motion]) *,
-  html:not([data-motion]) *:before,
-  html:not([data-motion]) *:after {
-    animation: none !important;
-    transition: none !important;
-    scroll-behavior: auto !important;
-  }
-  html:not([data-motion]) .hero-art {
-    transform: none !important;
-  }
-  html:not([data-motion]) .site-header {
-    animation: none;
-  }
-  html:not([data-motion]) .story-finale {
-    flex-wrap: wrap;
-  }
-  html:not([data-motion]) .story-captions > h2,
-  html:not([data-motion]) .story-captions > p {
-    opacity: 1 !important;
-    visibility: visible !important;
-    transform: none !important;
-  }
-  html:not([data-motion]) .study-picture {
-    inset: 0;
-  }
-  html:not([data-motion]) .study-intro {
-    display: none;
-  }
-  html:not([data-motion]) .study-picture h2 {
-    white-space: normal;
-  }
-  html:not([data-motion]) .orbit-token {
-    display: none;
-  }
-  html:not([data-motion]) .practice-card-wrap {
-    transform: none !important;
-  }
-}
 /* Socratic art direction: original paintings and a marble portrait, composed in CSS. */
 .hero-art {
   left: 21%;
@@ -2815,20 +2733,6 @@ html[data-motion="off"] .practice-card-wrap {
     margin-top: -180px;
   }
 }
-html[data-motion="off"] .motion-image {
-  display: none;
-}
-html[data-motion="off"] .motion-poster {
-  display: block;
-}
-@media (prefers-reduced-motion: reduce) {
-  html:not([data-motion]) .motion-image {
-    display: none;
-  }
-  html:not([data-motion]) .motion-poster {
-    display: block;
-  }
-}
 /* Motion layers use independent transforms so scroll and pointer movement compose. */
 .reading-progress {
   position: fixed;
@@ -2941,42 +2845,6 @@ html[data-motion="off"] .motion-poster {
 @media (max-width: 760px) {
   .statement-line > span {
     translate: calc(var(--word-shift, 0px) * 0.3) 0;
-  }
-}
-html[data-motion="off"] .reveal-line-inner,
-html[data-motion="off"] .feature-card,
-html[data-motion="off"] .statement-line > span,
-html[data-motion="off"] .gallery-art,
-html[data-motion="off"] .inline-portrait,
-html[data-motion="off"] .feature-heading,
-html[data-motion="off"] .feature-eyebrow {
-  transform: none !important;
-  translate: none !important;
-  rotate: none !important;
-  opacity: 1 !important;
-  clip-path: none !important;
-  will-change: auto;
-}
-html[data-motion="off"] .reading-progress {
-  display: none;
-}
-@media (prefers-reduced-motion: reduce) {
-  html:not([data-motion]) .reveal-line-inner,
-  html:not([data-motion]) .feature-card,
-  html:not([data-motion]) .statement-line > span,
-  html:not([data-motion]) .gallery-art,
-  html:not([data-motion]) .inline-portrait,
-  html:not([data-motion]) .feature-heading,
-  html:not([data-motion]) .feature-eyebrow {
-    transform: none !important;
-    translate: none !important;
-    rotate: none !important;
-    opacity: 1 !important;
-    clip-path: none !important;
-    will-change: auto;
-  }
-  html:not([data-motion]) .reading-progress {
-    display: none;
   }
 }
 /* Lenis owns smooth scrolling; keep the browser's CSS animation from competing. */
@@ -3201,18 +3069,6 @@ html.lenis body {
     display: none;
   }
 }
-html[data-motion="off"] .hero-content {
-  opacity: 1 !important;
-  translate: none !important;
-  will-change: auto;
-}
-@media (prefers-reduced-motion: reduce) {
-  html:not([data-motion]) .hero-content {
-    opacity: 1 !important;
-    translate: none !important;
-    will-change: auto;
-  }
-}
 /* SocratesCode's column-and-brackets seal replaces the bookmark motif. */
 .brand-emblem,
 .brand-emblem:hover {
@@ -3250,34 +3106,6 @@ html[data-motion="off"] .hero-content {
   width: 0.65em;
   height: 0.65em;
 }
-.motion-toggle {
-  position: fixed;
-  z-index: 80;
-  bottom: max(16px, env(safe-area-inset-bottom));
-  right: max(20px, env(safe-area-inset-right));
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  min-height: 44px;
-  padding: 10px 16px;
-  background: var(--paper);
-  border: 1px solid #75493440;
-  border-radius: 28px;
-  color: var(--brand);
-  font: 11px var(--sans);
-  cursor: pointer;
-}
-.motion-toggle svg {
-  width: 12px;
-  height: 12px;
-}
-.motion-toggle[aria-pressed="false"] {
-  color: var(--paper);
-  background: var(--brand);
-}
-.footer-bottom {
-  padding-bottom: 82px;
-}
 @media (max-width: 1100px) {
   .brand-emblem,
   .brand-emblem:hover {
@@ -3302,18 +3130,4 @@ html[data-motion="off"] .hero-content {
   .wordmark > span {
     font-size: 9px;
   }
-  .motion-toggle {
-    right: 12px;
-    bottom: max(12px, env(safe-area-inset-bottom));
-    padding-inline: 13px;
-    font-size: 10px;
-  }
-}
-
-/* Reserve a clear lane above the persistent animation control. */
-.hero-foot {
-  bottom: 76px;
-}
-.motion-ready .story-running-label {
-  bottom: 74px;
 }

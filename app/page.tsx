@@ -5,16 +5,14 @@ import {
   AnimatedLabel,
   Curriculum,
   Header,
+  ThinkingPreview,
   Mark,
   TraceDemo,
 } from "@/components/interactive";
 
-const artwork: Record<
-  string,
-  { file: string; position?: string; animated?: boolean }
-> = {
+const artwork: Record<string, { file: string; position?: string }> = {
   hero: {
-    file: "socratic-laptop-hero",
+    file: "socratic-coder-v2",
     position: "center",
   },
   arena: {
@@ -22,24 +20,23 @@ const artwork: Record<
     position: "50% 40%",
   },
   scales: {
-    file: "socratic-laptop-loop",
-    position: "56% 40%",
-    animated: true,
+    file: "socratic-coder-v2",
+    position: "center",
   },
   community: {
     file: "socratic-portrait",
     position: "50% 35%",
   },
   microscope: {
-    file: "socratic-coding-academy",
+    file: "socratic-mentoring-v2",
     position: "62% 40%",
   },
   judgment: {
-    file: "socratic-academy",
+    file: "socratic-mentoring-v2",
     position: "50% 40%",
   },
   study: {
-    file: "socratic-coding-academy",
+    file: "socratic-mentoring-v2",
     position: "50% 40%",
   },
   "gallery-1": {
@@ -55,7 +52,7 @@ const artwork: Record<
     position: "50% 35%",
   },
   "gallery-4": {
-    file: "socratic-laptop-study",
+    file: "socratic-coder-v2",
     position: "60% 40%",
   },
   "gallery-5": {
@@ -75,11 +72,11 @@ const artwork: Record<
     position: "50% 50%",
   },
   "portrait-4": {
-    file: "socratic-coding-academy",
+    file: "socratic-mentoring-v2",
     position: "65% 45%",
   },
   "portrait-5": {
-    file: "socratic-laptop-study",
+    file: "socratic-coder-v2",
     position: "30% 35%",
   },
   "portrait-6": {
@@ -99,11 +96,11 @@ const artwork: Record<
     position: "20% 40%",
   },
   "portrait-10": {
-    file: "socratic-laptop-study",
+    file: "socratic-coder-v2",
     position: "75% 35%",
   },
   "portrait-11": {
-    file: "socratic-coding-academy",
+    file: "socratic-mentoring-v2",
     position: "64% 35%",
   },
   "portrait-12": {
@@ -124,29 +121,6 @@ function Art({
   className?: string;
 }) {
   const art = artwork[name];
-  if (art.animated)
-    return (
-      <>
-        <Image
-          src="/images/socratic-laptop-loop.gif"
-          alt={alt}
-          fill
-          unoptimized
-          sizes="(max-width: 700px) 100vw, 50vw"
-          className="motion-image"
-          style={{ objectPosition: art.position }}
-        />
-        <Image
-          src="/images/socratic-laptop-poster.webp"
-          alt=""
-          fill
-          unoptimized
-          sizes="(max-width: 700px) 100vw, 50vw"
-          className="motion-poster"
-          style={{ objectPosition: art.position }}
-        />
-      </>
-    );
   return (
     <Image
       style={{ objectPosition: art.position }}
@@ -246,36 +220,73 @@ export default function Home() {
       <div className="reading-progress" aria-hidden="true" />
       <main id="main">
         <section className="hero" id="home" aria-labelledby="hero-title">
-          <div className="hero-art">
+          <a
+            className="hero-seal"
+            href="#practice"
+            aria-label="Question, trace, understand: try the thinking lab"
+          >
+            <svg viewBox="0 0 100 100" aria-hidden="true">
+              <defs>
+                <path
+                  id="hero-seal-path"
+                  d="M50,50 m-38,0 a38,38 0 1,1 76,0 a38,38 0 1,1 -76,0"
+                />
+              </defs>
+              <text>
+                <textPath href="#hero-seal-path" textLength="238">
+                  QUESTION. TRACE. UNDERSTAND.{" "}
+                </textPath>
+              </text>
+            </svg>
+            <span aria-hidden="true">?</span>
+          </a>
+          <div className="hero-content content-width">
+            <p className="hero-kicker">
+              <span /> A LEARNING LAB FOR THE CURIOUS
+            </p>
+            <h1 id="hero-title" aria-label="Independent thinking.">
+              <span className="hero-line">
+                <span className="hero-word">Independent</span>
+              </span>{" "}
+              <span className="hero-line hero-line-accent">
+                <span className="hero-word">thinking.</span>
+              </span>
+            </h1>
+            <div className="hero-details">
+              <p className="hero-description">
+                The future belongs to those who ask why.
+                <br />
+                Learn to code. Build the mind behind it.
+              </p>
+              <div className="hero-actions">
+                <a className="button button-dark" href="#practice">
+                  <AnimatedLabel>Start thinking</AnimatedLabel>
+                  <span className="hero-button-arrow" aria-hidden="true">
+                    &#8599;
+                  </span>
+                </a>
+                <a className="button button-outline" href="#platform">
+                  <AnimatedLabel>Explore the platform</AnimatedLabel>
+                </a>
+              </div>
+              <ThinkingPreview />
+            </div>
+          </div>
+          <div className="hero-art" data-ambient>
             <Art
               name="hero"
-              alt="Original illustration of Socrates in classical robes working thoughtfully on a modern laptop"
+              alt="Socrates typing at a stone desk, with code on the laptop screen facing him"
               priority
             />
           </div>
-          <div className="hero-halftone" aria-hidden="true" />
-          <div className="hero-content content-width">
-            <h1 id="hero-title">
-              <span className="hero-line">Independent thinking.</span>
-            </h1>
-            <p className="hero-description">
-              A learning lab for programming logic.
-              <br />
-              Making you a better thinker, one question at a time.
-            </p>
-            <div className="hero-actions">
-              <a className="button button-dark" href="#practice">
-                <AnimatedLabel>Start thinking</AnimatedLabel>
-              </a>
-              <a className="button button-outline" href="#platform">
-                <AnimatedLabel>Explore the platform</AnimatedLabel>
-              </a>
-            </div>
+          <div className="hero-art-caption" aria-hidden="true">
+            <span>FIG. 01</span>
+            <span>ANCIENT QUESTIONS. NEW POSSIBILITIES.</span>
           </div>
           <div className="hero-foot">
             <span>HUMAN REASONING. COMPUTATIONAL RIGOR.</span>
             <a href="#platform" aria-label="Scroll to explore the platform">
-              Scroll to explore <span aria-hidden="true">↓</span>
+              SCROLL TO DISCOVER <span aria-hidden="true">&#8595;</span>
             </a>
           </div>
         </section>
@@ -303,25 +314,28 @@ export default function Home() {
                 <a
                   href={feature.href}
                   className="feature-card"
-                  data-tilt
                   key={feature.number}
                   data-reveal
                   aria-label={`Explore ${feature.number === "01" ? "the Socratic method" : feature.number === "02" ? "visual code tracing" : feature.number === "03" ? "independent problem solving" : "the curriculum"}`}
                 >
-                  <Art name={feature.image} />
-                  <span className="feature-eyebrow">{feature.label}</span>
-                  <div className="feature-bottom">
-                    <div className="feature-heading">
-                      <h3>{feature.title}</h3>
-                      <span className="feature-arrow" aria-hidden="true">
-                        ↗
-                      </span>
-                    </div>
-                    <div className="feature-detail">
-                      <p>{feature.description}</p>
-                      <span className="feature-link">
-                        Explore <span aria-hidden="true">↗</span>
-                      </span>
+                  <div className="feature-media" data-image-reveal data-ambient>
+                    <Art name={feature.image} />
+                  </div>
+                  <div className="feature-copy">
+                    <span className="feature-eyebrow">{feature.label}</span>
+                    <div className="feature-bottom">
+                      <div className="feature-heading">
+                        <h3>{feature.title}</h3>
+                        <span className="feature-arrow" aria-hidden="true">
+                          ↗
+                        </span>
+                      </div>
+                      <div className="feature-detail">
+                        <p>{feature.description}</p>
+                        <span className="feature-link">
+                          Explore <span aria-hidden="true">↗</span>
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </a>
@@ -394,15 +408,28 @@ export default function Home() {
             <br />
             <span>A different kind of progress.</span>
           </p>
-          <div>
-            {["Predict", "Run", "Investigate", "Modify", "Make"].map(
-              (word, index) => (
-                <span key={word} data-reveal>
-                  <sup>0{index + 1}</sup>
-                  {word}
-                </span>
-              ),
-            )}
+          <div className="primm-marquee" data-marquee>
+            <div className="marquee-track">
+              {[0, 1].map((copy) => (
+                <div
+                  className="marquee-group"
+                  key={copy}
+                  aria-hidden={copy === 1 ? true : undefined}
+                >
+                  {["Predict", "Run", "Investigate", "Modify", "Make"].map(
+                    (word, index) => (
+                      <span className="marquee-word" key={word}>
+                        <sup>0{index + 1}</sup>
+                        {word}
+                        <span className="marquee-separator" aria-hidden="true">
+                          /
+                        </span>
+                      </span>
+                    ),
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 
@@ -411,7 +438,12 @@ export default function Home() {
           id="principles"
           aria-labelledby="principles-title"
         >
-          <div className="principles-art" data-parallax="0.1">
+          <div
+            className="principles-art"
+            data-image-reveal
+            data-ambient
+            data-parallax="0.1"
+          >
             <Art name="gallery-3" />
           </div>
           <div className="principles-shade" />
@@ -460,31 +492,23 @@ export default function Home() {
           className="editorial-statement content-width"
           aria-label="Questions that make you think"
         >
-          <div className="statement-line" data-reveal data-drift="-1">
-            <span>Questions</span>
+          <div className="statement-line" data-reveal>
+            <span data-ink>Questions</span>
           </div>
-          <div
-            className="statement-line align-right"
-            data-reveal
-            data-drift="1"
-          >
+          <div className="statement-line align-right" data-reveal>
             <div className="inline-portrait">
               <Art name="portrait-11" />
             </div>
-            <span>that</span>
+            <span data-ink>that</span>
           </div>
-          <div
-            className="statement-line align-center"
-            data-reveal
-            data-drift="-1"
-          >
-            <span>make you</span>
+          <div className="statement-line align-center" data-reveal>
+            <span data-ink>make you</span>
           </div>
-          <div className="statement-line" data-reveal data-drift="1">
+          <div className="statement-line" data-reveal>
             <div className="inline-portrait">
               <Art name="portrait-12" />
             </div>
-            <span>think.</span>
+            <span data-ink>think.</span>
           </div>
           <div className="statement-note" data-reveal>
             <p>
@@ -499,44 +523,82 @@ export default function Home() {
         </section>
 
         <section className="judgment" aria-labelledby="judgment-title">
-          <div className="judgment-art" data-parallax="0.12">
-            <Art name="judgment" />
+          <div className="judgment-topline" data-reveal>
+            <span>THE SOCRATES-CODE DIFFERENCE</span>
+            <span>THINK DEEPER. BUILD BETTER.</span>
+          </div>
+          <div
+            className="judgment-art"
+            data-image-reveal
+            data-ambient
+            data-parallax="0.12"
+          >
+            <Art
+              name="judgment"
+              alt="Socrates teaching two students to code, pointing to the laptop screen"
+            />
           </div>
           <div className="judgment-copy" data-reveal>
+            <span className="judgment-index" aria-hidden="true">
+              01 / THE MIND BEHIND THE CODE
+            </span>
             <h2 id="judgment-title">
-              <RevealLines
-                lines={["Code is everywhere.", "Understanding is everything."]}
-              />
+              <span className="judgment-heading-lead">
+                Code is
+                <br />
+                everywhere.
+              </span>{" "}
+              <span className="judgment-heading-accent">
+                Understanding
+                <br />
+                is everything.
+              </span>
             </h2>
             <p>
               Go beyond the right answer.
               <br />
               Build the reasoning that gets you there.
             </p>
-            <a className="button button-dark" href="#curriculum">
+            <a className="judgment-link" href="#curriculum">
               <AnimatedLabel>Explore the method</AnimatedLabel>
+              <span aria-hidden="true">&#8599;</span>
             </a>
+          </div>
+          <div className="judgment-bottomline" data-reveal>
+            <span>FROM KNOWING WHAT TO KNOWING WHY.</span>
+            <span className="judgment-path" aria-hidden="true">
+              <i />
+              QUESTION<span>&#8594;</span>REASON<span>&#8594;</span>UNDERSTAND
+            </span>
           </div>
         </section>
 
         <section
-          className="curriculum-section section-pad"
+          className="curriculum-section"
+          data-scene="curriculum"
           id="curriculum"
           aria-labelledby="curriculum-title"
         >
-          <div className="content-width">
-            <div className="curriculum-heading" data-reveal>
-              <span className="eyebrow">FIVE STAGES. A NEW WAY TO LEARN.</span>
-              <h2 id="curriculum-title">
-                <RevealLines lines={["From ?it works?", "to ?I know why.?"]} />
-              </h2>
-              <p>
-                A small puzzle. Five powerful perspectives.
-                <br />
-                Meet PRIMM, your framework for independent learning.
-              </p>
-            </div>
-            <div data-reveal>
+          <div className="curriculum-sticky">
+            <div className="content-width">
+              <div className="curriculum-heading" data-reveal>
+                <span className="eyebrow">
+                  FIVE STAGES. A NEW WAY TO LEARN.
+                </span>
+                <h2 id="curriculum-title">
+                  <RevealLines
+                    lines={[
+                      "From \u2018it works\u2019",
+                      "to \u2018I know why.\u2019",
+                    ]}
+                  />
+                </h2>
+                <p>
+                  A small puzzle. Five powerful perspectives.
+                  <br />
+                  Meet PRIMM, your framework for independent learning.
+                </p>
+              </div>
               <Curriculum />
             </div>
           </div>
@@ -558,16 +620,36 @@ export default function Home() {
               <AnimatedLabel>Enter the thinking lab</AnimatedLabel>
             </a>
           </div>
-          <div className="gallery-art gallery-art-1" data-parallax="-0.14">
+          <div
+            className="gallery-art gallery-art-1"
+            data-image-reveal
+            data-ambient
+            data-parallax="-0.14"
+          >
             <Art name="gallery-1" />
           </div>
-          <div className="gallery-art gallery-art-2" data-parallax="0.13">
+          <div
+            className="gallery-art gallery-art-2"
+            data-image-reveal
+            data-ambient
+            data-parallax="0.13"
+          >
             <Art name="gallery-2" />
           </div>
-          <div className="gallery-art gallery-art-3" data-parallax="-0.1">
+          <div
+            className="gallery-art gallery-art-3"
+            data-image-reveal
+            data-ambient
+            data-parallax="-0.1"
+          >
             <Art name="gallery-4" />
           </div>
-          <div className="gallery-art gallery-art-4" data-parallax="0.18">
+          <div
+            className="gallery-art gallery-art-4"
+            data-image-reveal
+            data-ambient
+            data-parallax="0.18"
+          >
             <Art name="gallery-5" />
           </div>
         </section>
@@ -582,11 +664,10 @@ export default function Home() {
               <span className="eyebrow">
                 THE TOOLS CHANGE. THE THINKING IS YOURS.
               </span>
-              <p>
-                Use AI to deepen your understanding.
-                <br />
-                Keep your curiosity in the driver’s seat.
-              </p>
+              <h2 id="study-title">
+                AI doesn’t replace
+                <br className="mobile-break" /> understanding.
+              </h2>
             </div>
             <div className="study-picture">
               <Art
@@ -594,10 +675,6 @@ export default function Home() {
                 alt="Original illustration of Socrates teaching three students how to code on laptops in a Greek academy"
               />
               <div className="study-overlay" />
-              <h2 id="study-title">
-                AI doesn’t replace
-                <br className="mobile-break" /> understanding.
-              </h2>
             </div>
             <div className="study-bottom">
               <p>It starts with a question.</p>
@@ -605,25 +682,12 @@ export default function Home() {
                 <AnimatedLabel>Make your first prediction</AnimatedLabel>
               </a>
             </div>
-            <span className="orbit-token token-1" aria-hidden="true">
-              {"{ }"}
-            </span>
-            <span className="orbit-token token-2" aria-hidden="true">
-              f(x)
-            </span>
-            <span className="orbit-token token-3" aria-hidden="true">
-              <Mark />
-            </span>
-            <span className="orbit-token token-4" aria-hidden="true">
-              ↗
-            </span>
           </div>
         </section>
 
         <section
           className="practice-scene"
           id="practice"
-          data-scene="practice"
           aria-labelledby="practice-title"
         >
           <div className="practice-sticky">
