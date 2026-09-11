@@ -1,0 +1,22 @@
+{
+  "generator": "Built-in image_gen",
+  "createdFor": "SocratesCode",
+  "source": "Original images generated from text prompts; no external image assets used.",
+  "prompts": "/docs/artwork-prompts.json",
+  "files": [
+    "socratic-hero.webp",
+    "socratic-portrait.webp",
+    "socratic-dialogue.webp",
+    "socratic-logic.webp",
+    "socratic-academy.webp",
+    "socratic-laptop-hero.webp",
+    "socratic-laptop-study.webp",
+    "socratic-coding-academy.webp"
+  ],
+  "animation": {
+    "file": "socratic-laptop-loop.gif",
+    "source": "socratic-laptop-study.webp",
+    "script": "scripts/animate-laptop.mjs",
+    "frames": 26
+  }
+}
