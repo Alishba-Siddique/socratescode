@@ -11,101 +11,65 @@ import {
 } from "@/components/interactive";
 
 const artwork: Record<string, { file: string; position?: string }> = {
-  hero: {
-    file: "socratic-coder-v2",
+  mentor: {
+    file: "socratic-mentor-v3",
     position: "center",
   },
   arena: {
-    file: "socratic-dialogue",
-    position: "50% 40%",
+    file: "socratic-dialogue-v3",
+    position: "center",
   },
   scales: {
     file: "socratic-coder-v2",
     position: "center",
   },
   community: {
-    file: "socratic-portrait",
-    position: "50% 35%",
+    file: "socratic-student-v3",
+    position: "center",
   },
   microscope: {
     file: "socratic-mentoring-v2",
-    position: "62% 40%",
+    position: "center",
   },
-  judgment: {
-    file: "socratic-mentoring-v2",
-    position: "50% 40%",
-  },
-  study: {
-    file: "socratic-mentoring-v2",
-    position: "50% 40%",
-  },
-  "gallery-1": {
+  "portrait-1": {
     file: "socratic-dialogue",
-    position: "70% 50%",
+    position: "center",
   },
-  "gallery-2": {
+  "portrait-2": {
     file: "socratic-logic",
-    position: "50% 45%",
+    position: "center",
+  },
+  "portrait-3": {
+    file: "socratic-academy",
+    position: "center",
+  },
+  finale: {
+    file: "socratic-hero",
+    position: "center",
   },
   "gallery-3": {
     file: "socratic-portrait",
-    position: "50% 35%",
+    position: "center",
+  },
+  "gallery-1": {
+    file: "socratic-study-v3",
+    position: "center",
+  },
+  "gallery-2": {
+    file: "socratic-logic-v3",
+    position: "center",
   },
   "gallery-4": {
-    file: "socratic-coder-v2",
-    position: "60% 40%",
+    file: "socratic-compass-v3",
+    position: "center",
   },
   "gallery-5": {
-    file: "socratic-hero",
-    position: "75% 35%",
+    file: "socratic-coding-academy",
+    position: "center",
   },
-  "portrait-1": {
-    file: "socratic-portrait",
-    position: "50% 30%",
-  },
-  "portrait-2": {
-    file: "socratic-dialogue",
-    position: "28% 40%",
-  },
-  "portrait-3": {
-    file: "socratic-logic",
-    position: "50% 50%",
-  },
-  "portrait-4": {
-    file: "socratic-mentoring-v2",
-    position: "65% 45%",
-  },
-  "portrait-5": {
-    file: "socratic-coder-v2",
-    position: "30% 35%",
-  },
-  "portrait-6": {
-    file: "socratic-portrait",
-    position: "65% 35%",
-  },
-  "portrait-7": {
-    file: "socratic-hero",
-    position: "70% 40%",
-  },
-  "portrait-8": {
-    file: "socratic-dialogue",
-    position: "80% 35%",
-  },
-  "portrait-9": {
-    file: "socratic-logic",
-    position: "20% 40%",
-  },
-  "portrait-10": {
-    file: "socratic-coder-v2",
-    position: "75% 35%",
-  },
-  "portrait-11": {
-    file: "socratic-mentoring-v2",
-    position: "64% 35%",
-  },
-  "portrait-12": {
-    file: "socratic-portrait",
-    position: "50% 35%",
+  study: {
+    file: "socratic-academy-v3",
+    position: "center",
   },
 };
 
@@ -201,13 +165,6 @@ const floating = [
   { image: "portrait-1", speed: -1.7, position: "float-1" },
   { image: "portrait-2", speed: -2.3, position: "float-2" },
   { image: "portrait-3", speed: -1.2, position: "float-3" },
-  { image: "portrait-4", speed: -1.05, position: "float-4" },
-  { image: "portrait-5", speed: -2.1, position: "float-5" },
-  { image: "portrait-6", speed: -1.5, position: "float-6" },
-  { image: "portrait-7", speed: -2.7, position: "float-7" },
-  { image: "portrait-8", speed: -1.8, position: "float-8" },
-  { image: "portrait-9", speed: -1.3, position: "float-9" },
-  { image: "portrait-10", speed: -2.4, position: "float-10" },
 ];
 
 export default function Home() {
@@ -248,6 +205,13 @@ export default function Home() {
             </div>
           </div>
           <div className="hero-lab">
+            <div className="hero-mentor">
+              <Art
+                name="mentor"
+                alt="Socrates, your thoughtful guide, sculpted in ivory marble"
+                priority
+              />
+            </div>
             <div className="hero-lab-caption">
               <span>LESS GUESSWORK. MORE UNDERSTANDING.</span>
               <span>
@@ -362,8 +326,8 @@ export default function Home() {
               </h2>
               <div className="finale-art">
                 <Art
-                  name="community"
-                  alt="Original marble-style portrait of Socrates"
+                  name="finale"
+                  alt="Socrates reflecting on a question in a classical courtyard"
                 />
               </div>
             </div>
@@ -467,18 +431,12 @@ export default function Home() {
             <span data-ink>Questions</span>
           </div>
           <div className="statement-line align-right" data-reveal>
-            <div className="inline-portrait">
-              <Art name="portrait-11" />
-            </div>
             <span data-ink>that</span>
           </div>
           <div className="statement-line align-center" data-reveal>
             <span data-ink>make you</span>
           </div>
           <div className="statement-line" data-reveal>
-            <div className="inline-portrait">
-              <Art name="portrait-12" />
-            </div>
             <span data-ink>think.</span>
           </div>
           <div className="statement-note" data-reveal>
@@ -646,7 +604,7 @@ export default function Home() {
             <div className="study-picture">
               <Art
                 name="study"
-                alt="Original illustration of Socrates teaching three students how to code on laptops in a Greek academy"
+                alt="Socrates and three learners exploring a logic problem at a sunlit academy"
               />
               <div className="study-overlay" />
             </div>
