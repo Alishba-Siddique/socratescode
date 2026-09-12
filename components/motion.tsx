@@ -42,7 +42,8 @@ export function Motion({ children }: { children: ReactNode }) {
       root.dataset.motion = "on";
       const lenis = new Lenis({
         autoRaf: false,
-        respectReducedMotion: true,
+        // This component owns the media-query lifecycle and destroys Lenis on reduction.
+        respectReducedMotion: false,
         lerp: 0.095,
         smoothWheel: true,
         syncTouch: false,

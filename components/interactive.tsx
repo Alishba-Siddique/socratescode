@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 
+import { useMotionRunning } from "./use-motion-running";
+
 export function Mark({ className = "" }: { className?: string }) {
   return (
     <svg
@@ -321,6 +323,7 @@ const trace = [
 ];
 
 export function TraceDemo() {
+  const motionRunning = useMotionRunning();
   const demoRef = useRef<HTMLDivElement>(null);
   const [manual, setManual] = useState(false);
   const [visible, setVisible] = useState(false);
@@ -354,7 +357,7 @@ export function TraceDemo() {
     };
   }, []);
   useEffect(() => {
-    if (manual || !visible) return;
+    if (manual || !visible || !motionRunning) return;
     setPrediction(null);
     setStep(0);
     setHint(false);
@@ -375,17 +378,17 @@ export function TraceDemo() {
     };
     timer = setTimeout(advance, 1200);
     return () => clearTimeout(timer);
-  }, [manual, visible]);
+  }, [manual, visible, motionRunning]);
   return (
     <div
       ref={demoRef}
       className="trace-demo"
-      data-demo-mode={manual ? "manual" : "autoplay"}
+      data-demo-mode={manual ? "manual" : motionRunning ? "autoplay" : "paused"}
     >
       <div className="demo-playback">
         <span>
           <i aria-hidden="true" />
-          {manual ? "YOUR TURN" : "LIVE WALKTHROUGH"}
+          {manual ? "YOUR TURN" : motionRunning ? "LIVE WALKTHROUGH" : "MOTION PAUSED"}
         </span>
         <button
           type="button"
@@ -552,6 +555,7 @@ export function TraceDemo() {
 
 /** Autoplay demonstrates the method; visitors can pause or choose any stage. */
 export function ThinkingPreview() {
+  const motionRunning = useMotionRunning();
   const ref = useRef<HTMLDivElement>(null);
   const [step, setStep] = useState(0);
   const [playing, setPlaying] = useState(true);
@@ -560,7 +564,7 @@ export function ThinkingPreview() {
     let timer: ReturnType<typeof setInterval> | undefined;
     const sync = () => {
       clearInterval(timer);
-      if (visible && !document.hidden && playing) {
+      if (visible && !document.hidden && playing && motionRunning) {
         timer = setInterval(() => setStep((value) => (value + 1) % 3), 4000);
       }
     };
@@ -579,7 +583,7 @@ export function ThinkingPreview() {
       observer.disconnect();
       document.removeEventListener("visibilitychange", sync);
     };
-  }, [playing]);
+  }, [playing, motionRunning]);
   const states = [
     {
       name: "Predict",
@@ -630,7 +634,7 @@ export function ThinkingPreview() {
       className="thinking-preview"
       ref={ref}
       data-preview-step={step}
-      data-preview-mode={playing ? "autoplay" : "paused"}
+      data-preview-mode={playing && motionRunning ? "autoplay" : "paused"}
     >
       <div className="thinking-preview-top">
         <span>
@@ -638,10 +642,12 @@ export function ThinkingPreview() {
         </span>
         <button
           type="button"
+          disabled={!motionRunning}
+          title={!motionRunning ? "Enable motion to play the preview; you can still select any stage." : undefined}
           onClick={() => setPlaying((value) => !value)}
           aria-label={playing ? "Pause preview" : "Play preview"}
         >
-          {playing ? "Pause preview" : "Play preview"}
+          {!motionRunning ? "Motion paused" : playing ? "Pause preview" : "Play preview"}
           <span aria-hidden="true">{playing ? "‖" : "▷"}</span>
         </button>
       </div>
