@@ -74,3 +74,6 @@ Use the Next.js framework preset with `npm run build` and the default output dir
 Section layout and motion refinements live in `app/sections.css`, which reserves separate space for copy and artwork at desktop and mobile sizes. The current development preview is http://localhost:3000.
 
 The hero and understanding section are defined in `app/hero.css`. Centered, readable copy introduces a live learning preview with keyboard-accessible Predict, Trace, and Understand tabs, autoplay, and a pause control. The understanding section explains three concrete learning outcomes without a split-image layout. Hero copy remains fully visible while scrolling; Lenis continues to smooth wheel input and anchor navigation.
+
+## 2026-09-13 motion and artwork revision
+The story finale is a centered editorial painting with complete figures and softly painted edges. The understanding section uses a full seated laptop painting on the cocoa canvas with moving orbital lines; no cropped heads, hard image frame or image/text overlap. References: https://www.awwwards.com/ and https://lenis.dev/. New originals: public/images/socratic-dialogue-complete.webp and socratic-laptop-complete.webp; prompts and corrective passes are recorded in docs/artwork-prompts.json.
