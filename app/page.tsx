@@ -298,20 +298,22 @@ export default function Home() {
             <div className="story-captions">
               <h2 data-caption="0">
                 <span>Built for real-world</span>
-                <br />
-                <span>independent thinking.</span>
+                <span className="story-line">independent thinking.</span>
               </h2>
               <p data-caption="1">
                 <span>An AI that believes the best answer</span>
-                <br />
-               <span> starts with a better question.</span>
+                <span className="story-line">starts with a better question.</span>
               </p>
               <p data-caption="2">
-               <span> Because understanding</span>
-                <br />
-                <span>is something you build.</span>
+                <span>Because understanding</span>
+                <span className="story-line">is something you build.</span>
               </p>
             </div>
+            <style>{`
+              .story-captions .story-line {
+                display: block;
+              }
+            `}</style>
             <div className="story-finale content-width">
               <span className="finale-eyebrow eyebrow">
                 A LITTLE CURIOSITY CHANGES EVERYTHING
