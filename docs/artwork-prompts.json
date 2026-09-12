@@ -1,7 +1,7 @@
 {
   "generator": "Built-in image_gen",
   "date": "2026-09-11",
-  "referenceImagesUsed": false,
+  "referenceImagesUsed": true,
   "artwork": [
     {
       "name": "socratic-hero",
@@ -70,6 +70,37 @@
     {
       "name": "socratic-compass-v3",
       "prompt": "Original square 1024x1024 premium editorial still-life illustration, neoclassical oil painting meets tactile 3D product realism. A delicate aged bronze drafting compass, an ivory geometric sphere and three cocoa brown #754934 wooden cubes carefully arranged on warm ivory travertine; an unfurled parchment with a few restrained graphite geometric arcs, no writing. Quiet concept of testing assumptions and building a mental model. One directional sunbeam, soft accurate contact shadows, subtle stone grain and canvas texture, warm ivory #f9f8f6 studio background. Objects occupy center70 percent for safe website crops, close camera at table height, generous quiet perimeter, no hands or people, no laptops, no logos, no text, no watermark. New original illustration for the SocratesCode philosophical coding lab."
+    },
+    {
+      "name": "socratic-logic",
+      "prompt": "Use case: lighting-weather. Edit target: supplied painting of a hand arranging five stone logic blocks. Preserve the exact composition, hand anatomy, block symbols, bronze maze and classical oil-painting realism. Repaint the dark teal wall as softly illuminated warm ivory plaster, lighten the heavy black lower shadows into warm umber. Cohesive premium website palette: ivory #f7f4ef, travertine, muted brown #754934 and antique bronze. Warm diffused daylight, clear detail, gentle contrast. No teal, blue, lettering or new objects. Keep square framing.",
+      "edited": "2026-09-12",
+      "referenceImages": "Original project artwork"
+    },
+    {
+      "name": "socratic-coding-academy",
+      "prompt": "Use case: precise-object-edit. Edit target: supplied Socrates and three students with laptops painting. Preserve people, faces, hands, composition, classical realism. CRITICAL: all three laptop panels facing the viewer are OUTER LIDS, not screens. Remove every code mark and every glowing mark from all three outer lids; replace with plain matte warm graphite aluminum backs, no text, no logo. Screens face the students, away from camera; do not add visible code anywhere. Preserve plausible hinges and keyboard-hand relationships. Change teal night sky into pale warm ivory daylight sky, teal clothes into muted cocoa brown #754934, olive into taupe. Warm sunlit travertine, cream robes, subtle brown shadows; cohesive refined oil painting website illustration. No neon or lettering. Keep landscape framing.",
+      "edited": "2026-09-12",
+      "referenceImages": "Original project artwork"
+    },
+    {
+      "name": "socratic-academy",
+      "prompt": "Use case: lighting-weather. Edit target: supplied classical Socrates teaching on the steps above Athens. Preserve exact group, hand gestures, architecture, coastline, realistic classical painting composition. Transform blue night into luminous soft late-afternoon daylight: ivory sky, pale warm limestone, muted sandy landscape, cream robe and cocoa brown #754934 and taupe student garments. Remove stars and flame glow. Sea should be pale desaturated warm gray. Warm ivory and restrained brown palette, softly lifted shadows, clean readable detail for premium educational website. No new objects, no text. Keep landscape framing.",
+      "edited": "2026-09-12",
+      "referenceImages": "Original project artwork"
+    },
+    {
+      "name": "socratic-mentor-front",
+      "prompt": "Use case: identity-preserve. Edit the supplied ivory marble Socrates bust in brown robe. Rotate ONLY his head and shoulders to face directly forward, looking directly into the viewer's eyes, centered symmetrical front portrait. Preserve recognizable face, bald crown, curled beard, material texture, brown #754934 robe, soft lighting, square canvas and similar scale. No sunglasses for this base pose. Place on perfectly flat uniform solid off-white #f9f8f6 background, no pattern or checkerboard, no floor, no vignette, no shadow cast on backdrop. The sculpture must have a clean isolated silhouette with ample small margin. Sophisticated realistic sculpture for website mascot. No lettering.",
+      "edited": "2026-09-12",
+      "referenceImages": "Original project artwork"
+    },
+    {
+      "name": "socratic-mentor-front-sunglasses",
+      "prompt": "Use case: precise-object-edit. Add dark espresso sunglasses with subtle bronze hinges to the supplied front-facing Socrates sculpture. Keep his face directly facing the viewer, exact same alignment, scale, silhouette, crop, marble beard, brown robe, soft light and flat off-white background #f9f8f6. Change ONLY sunglasses over his eyes. Symmetrical frame naturally rests on nose and ears. No checkerboard, no other objects, no lettering. Matching website hover variant.",
+      "edited": "2026-09-12",
+      "referenceImages": "Original project artwork"
     }
-  ]
+  ],
+  "referenceScope": "Only previously generated original project artwork was used for edits; no external assets."
 }

@@ -808,7 +808,7 @@ test("product hero and approach stay readable without split-image layouts at eve
 }) => {
   await page.goto("/");
   await page.waitForTimeout(1500);
-  await expect(page.locator(".hero img, .judgment img")).toHaveCount(0);
+  await expect(page.locator(".hero-content img, .judgment img")).toHaveCount(0);
   for (const width of [1830, 1440, 1024, 844, 390, 320]) {
     await page.setViewportSize({ width, height: 1000 });
     await page.evaluate(() => scrollTo(0, 0));
@@ -840,4 +840,42 @@ test("product hero and approach stay readable without split-image layouts at eve
   await page.locator(".judgment-link").click();
   await expect(page).toHaveURL(/#curriculum$/);
   await expect(page.locator("#curriculum-title")).toBeInViewport();
+});
+
+
+test('Socrates faces the visitor and sunglasses work by hover, keyboard and tap', async ({page}) => {
+ await page.goto('/');
+ const mentor=page.getByRole('button',{name:'Socrates sunglasses'});
+ await expect(mentor.locator('.mentor-base')).toHaveAttribute('src','/images/socratic-mentor-front.webp');
+ await mentor.hover();
+ await expect(mentor).toHaveAttribute('data-active','true');
+ await expect(mentor.locator('.mentor-glasses')).toHaveCSS('opacity','1');
+ await page.mouse.move(10,10);
+ await expect(mentor).toHaveAttribute('data-active','false');
+ await mentor.focus(); await mentor.press('Enter');
+ await expect(mentor).toHaveAttribute('aria-pressed','true');
+ await mentor.press('Escape');
+ await expect(mentor).toHaveAttribute('aria-pressed','false');
+ const context=await page.context().browser()!.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true});
+ try {const phone=await context.newPage();await phone.goto(page.url());const bust=phone.getByRole('button',{name:'Socrates sunglasses'});await bust.tap();await expect(bust).toHaveAttribute('aria-pressed','true');await bust.tap();await expect(bust).toHaveAttribute('data-active','false');} finally {await context.close();}
+});
+
+test('floating paintings move around a readable central question',async({page})=>{
+ await page.goto('/');await expect(page.locator('html')).toHaveClass(/motion-ready/);
+ for(const size of [{width:1440,height:1000},{width:390,height:844},{width:320,height:568}]){
+  await page.setViewportSize(size);
+  for(const progress of [0.1,0.35,0.6]){
+   await page.locator('.story-scene').evaluate((el,p)=>scrollTo({top:scrollY+el.getBoundingClientRect().top+(el.clientHeight-innerHeight)*p,behavior:'instant'}),progress);
+   await page.waitForTimeout(700);
+   const collisions=await page.evaluate(()=>{
+    const captions=[...document.querySelectorAll('.story-captions > *')].filter(el=>Number(getComputedStyle(el).opacity)>0.5);
+    const pictures=[...document.querySelectorAll('.float-image')];
+    return captions.flatMap(c=>pictures.filter(p=>{const a=c.getBoundingClientRect(),b=p.getBoundingClientRect();return Math.min(a.right,b.right)>Math.max(a.left,b.left)&&Math.min(a.bottom,b.bottom)>Math.max(a.top,b.top);}));
+   });
+   expect(collisions.length,'art overlaps caption at '+size.width+' / '+progress).toBe(0);
+  }
+ }
+ const images=await page.locator('img').evaluateAll(imgs=>imgs.map(i=>i.getAttribute('src')));
+ expect(new Set(images).size).toBe(images.length);
+ await expect(page.locator('img[src="/images/socratic-laptop-hero.webp"]')).toHaveCount(1);
 });

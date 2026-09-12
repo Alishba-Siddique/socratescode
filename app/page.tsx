@@ -1,3 +1,4 @@
+import { Mentor } from "@/components/mentor";
 ﻿import Image from "next/image";
 import { RevealLines } from "@/components/reveal-lines";
 import { Motion } from "@/components/motion";
@@ -48,7 +49,7 @@ const artwork: Record<string, { file: string; position?: string }> = {
     position: "center",
   },
   "gallery-3": {
-    file: "socratic-portrait",
+    file: "socratic-laptop-hero",
     position: "center",
   },
   "gallery-1": {
@@ -205,13 +206,7 @@ export default function Home() {
             </div>
           </div>
           <div className="hero-lab">
-            <div className="hero-mentor">
-              <Art
-                name="mentor"
-                alt="Socrates, your thoughtful guide, sculpted in ivory marble"
-                priority
-              />
-            </div>
+            <Mentor />
             <div className="hero-lab-caption">
               <span>LESS GUESSWORK. MORE UNDERSTANDING.</span>
               <span>
@@ -379,7 +374,7 @@ export default function Home() {
             data-ambient
             data-parallax="0.1"
           >
-            <Art name="gallery-3" />
+            <Art name="gallery-3" alt="Socrates practicing on a laptop" />
           </div>
           <div className="principles-shade" />
           <div className="content-width principles-content" data-reveal>
