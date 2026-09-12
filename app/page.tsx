@@ -12,6 +12,9 @@ import {
 } from "@/components/interactive";
 
 const artwork: Record<string, { file: string; position?: string }> = {
+  "question-portrait": { file: "socratic-portrait" },
+  "question-notebook": { file: "socratic-question-notebook" },
+  "question-discovery": { file: "socratic-question-discovery" },
   mentor: {
     file: "socratic-mentor-v3",
     position: "center",
@@ -368,23 +371,13 @@ export default function Home() {
           id="principles"
           aria-labelledby="principles-title"
         >
-          <div
-            className="principles-art"
-            data-image-reveal
-            data-ambient
-            data-parallax="0.1"
-          >
-            <Art name="gallery-3" alt="Socrates practicing on a laptop" />
-          </div>
-          <div className="principles-shade" />
           <div className="content-width principles-content" data-reveal>
             <span className="eyebrow">THE MISSING SIGNAL: UNDERSTANDING</span>
             <h2 id="principles-title">
               <RevealLines
                 lines={[
-                  "Connecting the dots.",
-                  "Without connecting",
-                  "to autocomplete.",
+                  "Make the connection.",
+                  "Then make it your own.",
                 ]}
               />
             </h2>
@@ -401,6 +394,17 @@ export default function Home() {
               <a href="#method">Socratic thinking</a>
               <a href="#curriculum">Interview foundations</a>
             </div>
+          </div>
+          <div className="reasoning-exhibit content-width">
+            <div className="exhibit-caption"><span>ANCIENT CURIOSITY. MODERN PRACTICE.</span><span>EST. IN A QUESTION</span></div>
+            <div className="principles-art">
+              <Art name="gallery-3" alt="Socrates seated with his laptop, his full head and hands visible" />
+            </div>
+            <ol className="exhibit-trail" aria-label="Your reasoning process">
+              <li><span>01 / PREDICT</span><strong>What will happen?</strong></li>
+              <li><span>02 / TRACE</span><strong>Follow the evidence.</strong></li>
+              <li><span>03 / EXPLAIN</span><strong>Tell us why.</strong></li>
+            </ol>
           </div>
           <div className="principle-stats">
             <div data-reveal>
@@ -424,14 +428,17 @@ export default function Home() {
         >
           <div className="statement-line" data-reveal>
             <span data-ink>Questions</span>
+            <div className="question-art question-art-portrait"><Art name="question-portrait" alt="A marble portrait of Socrates, deep in thought" /></div>
           </div>
           <div className="statement-line align-right" data-reveal>
+            <div className="question-art question-art-notebook"><Art name="question-notebook" alt="A philosopher sketching a branching idea on a tablet" /></div>
             <span data-ink>that</span>
           </div>
           <div className="statement-line align-center" data-reveal>
             <span data-ink>make you</span>
           </div>
           <div className="statement-line" data-reveal>
+            <div className="question-art question-art-discovery"><Art name="question-discovery" alt="A student exploring a bronze geometric puzzle" /></div>
             <span data-ink>think.</span>
           </div>
           <div className="statement-note" data-reveal>

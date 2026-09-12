@@ -20,13 +20,19 @@ export function Motion({ children }: { children: ReactNode }) {
     window.addEventListener("scroll", syncHeader, { passive: true });
     syncHeader();
     let cleanup = () => {};
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const setup = () => {
       cleanup();
+      if (reducedMotion.matches) {
+        root.dataset.motion = "reduced";
+        document.querySelectorAll("[data-reveal], [data-image-reveal]").forEach((element) => element.classList.add("is-revealed"));
+        cleanup = () => { delete root.dataset.motion; };
+        return;
+      }
       root.dataset.motion = "on";
       const lenis = new Lenis({
         autoRaf: false,
-        // The landing page always animates, as requested by the brand owner.
-        respectReducedMotion: false,
+        respectReducedMotion: true,
         lerp: 0.095,
         smoothWheel: true,
         syncTouch: false,
@@ -407,8 +413,10 @@ export function Motion({ children }: { children: ReactNode }) {
       };
     };
     setup();
+    reducedMotion.addEventListener("change", setup);
     return () => {
       cleanup();
+      reducedMotion.removeEventListener("change", setup);
       window.removeEventListener("scroll", syncHeader);
     };
   }, []);
