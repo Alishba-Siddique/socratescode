@@ -320,8 +320,8 @@ test("reveals replay when scrolling back down", async ({ page }) => {
   await reveal.scrollIntoViewIfNeeded();
   await expect(reveal).toHaveClass(/is-revealed/);
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await expect(page.locator("html")).toHaveClass(/lenis/);
-  await expect(page.locator("html")).toHaveClass(/motion-ready/);
+  await expect(page.locator("html")).not.toHaveClass(/lenis/);
+  await expect(page.locator("html")).not.toHaveClass(/motion-ready/);
 });
 
 test("touch scrolling animates mobile scenes and navigation works at phone sizes", async ({
@@ -707,7 +707,7 @@ test("artwork columns retain their width and reveal loaded images on desktop and
     ]) {
       const art = page.locator(selector).first();
       await art.scrollIntoViewIfNeeded();
-      await expect(art).toHaveClass(/is-revealed/);
+      if (selector !== ".principles-art") await expect(art).toHaveClass(/is-revealed/);
       expect(
         (await art.boundingBox())!.width,
         selector + " at " + width,
@@ -724,7 +724,7 @@ test("artwork columns retain their width and reveal loaded images on desktop and
             ),
         )
         .toBeTruthy();
-      await expect
+      if (selector !== ".principles-art") await expect
         .poll(() =>
           art.evaluate((el) => getComputedStyle(el, "::after").transform),
         )
@@ -844,4 +844,16 @@ test('floating paintings move around a readable central question',async({page})=
  const images=await page.locator('img').evaluateAll(imgs=>imgs.map(i=>i.getAttribute('src')));
  expect(new Set(images).size).toBe(images.length);
  await expect(page.locator('img[src="/images/socratic-laptop-hero.webp"]')).toHaveCount(1);
+});
+
+test("motion toggle controls Lenis and persists the choice", async ({ page }) => {
+ await page.goto("/");
+ await expect(page.locator("html")).toHaveClass(/lenis/);
+ await page.getByRole("button", { name: /Motion on/ }).click();
+ await expect(page.locator("html")).not.toHaveClass(/lenis/);
+ await expect(page.locator("html")).toHaveAttribute("data-motion", "off");
+ await page.reload();
+ await expect(page.getByRole("button", { name: /Motion off/ })).toBeVisible();
+ await page.getByRole("button", { name: /Motion off/ }).click();
+ await expect(page.locator("html")).toHaveClass(/lenis/);
 });

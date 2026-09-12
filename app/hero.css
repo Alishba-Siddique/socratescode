@@ -808,3 +808,16 @@
  .story-finale .finale-art { width: min(100%, 460px); max-height: none; justify-self: center; }
  .reasoning-exhibit { border-radius: 24px; }
 }
+
+.motion-control { position: fixed; bottom: 18px; left: 20px; z-index: 70; min-height: 40px; display: inline-flex; align-items: center; gap: 8px; padding: 10px 15px; border: 1px solid #75493440; border-radius: 24px; background: #f9f8f6ed; color: #754934; font: 11px var(--sans); cursor: pointer; backdrop-filter: blur(10px); }
+.motion-control:focus-visible { outline: 2px solid #754934; outline-offset: 4px; }
+html[data-motion="off"] { scroll-behavior: auto !important; }
+html[data-motion="off"] *, html[data-motion="off"] *::before, html[data-motion="off"] *::after { animation: none !important; transition-duration: 0s !important; }
+html[data-motion="off"] [data-reveal], html[data-motion="off"] [data-image-reveal], html[data-motion="off"] .reveal-line-inner { opacity: 1 !important; transform: none !important; clip-path: none !important; }
+html[data-motion="off"] [data-ink] { color: inherit !important; -webkit-text-fill-color: currentColor !important; background: none !important; }
+@media (max-width: 760px) { .motion-control { bottom: 12px; left: 12px; min-height: 44px; padding: 10px 13px; } }
+
+.principles .principles-art { mask-image: linear-gradient(to right, transparent, #000 3%, #000 92%, transparent), linear-gradient(to bottom, transparent, #000 5%, #000 88%, transparent); mask-composite: intersect; }
+.question-art-discovery { aspect-ratio: 1; width: 112px; height: 112px; flex-basis: 112px; }
+.question-art-discovery img { object-fit: contain; }
+@media (max-width: 760px) { .question-art-discovery { width: 76px; height: 76px; flex-basis: 76px; } }

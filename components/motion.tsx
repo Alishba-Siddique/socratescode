@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import Lenis from "lenis";
 
 const clamp = (value: number, min = 0, max = 1) =>
@@ -11,6 +11,12 @@ const ease = (value: number) => value * value * (3 - 2 * value);
 
 /** Lenis and scroll scenes share one RAF clock; layout work runs only when dirty. */
 export function Motion({ children }: { children: ReactNode }) {
+  const [motionEnabled, setMotionEnabled] = useState(true);
+  const [systemReduced, setSystemReduced] = useState(false);
+  const toggleMotion = () => {
+    try { localStorage.setItem("socrates-motion", motionEnabled ? "off" : "on"); } catch { /* Storage can be unavailable in private browsing. */ }
+    window.dispatchEvent(new CustomEvent("socrates:motion-preference", { detail: !motionEnabled }));
+  };
   useEffect(() => {
     const root = document.documentElement;
     const header = document.querySelector<HTMLElement>(".site-header");
@@ -21,10 +27,14 @@ export function Motion({ children }: { children: ReactNode }) {
     syncHeader();
     let cleanup = () => {};
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let enabled = true;
+    try { enabled = localStorage.getItem("socrates-motion") !== "off"; } catch { /* Use the default when storage is unavailable. */ }
     const setup = () => {
       cleanup();
-      if (reducedMotion.matches) {
-        root.dataset.motion = "reduced";
+      setMotionEnabled(enabled);
+      setSystemReduced(reducedMotion.matches);
+      if (reducedMotion.matches || !enabled) {
+        root.dataset.motion = reducedMotion.matches ? "reduced" : "off";
         document.querySelectorAll("[data-reveal], [data-image-reveal]").forEach((element) => element.classList.add("is-revealed"));
         cleanup = () => { delete root.dataset.motion; };
         return;
@@ -412,13 +422,19 @@ export function Motion({ children }: { children: ReactNode }) {
         );
       };
     };
+    const onPreference = (event: Event) => {
+      enabled = Boolean((event as CustomEvent<boolean>).detail);
+      setup();
+    };
     setup();
+    window.addEventListener("socrates:motion-preference", onPreference);
     reducedMotion.addEventListener("change", setup);
     return () => {
       cleanup();
+      window.removeEventListener("socrates:motion-preference", onPreference);
       reducedMotion.removeEventListener("change", setup);
       window.removeEventListener("scroll", syncHeader);
     };
   }, []);
-  return children;
+  return <>{children}<button className="motion-control" type="button" onClick={toggleMotion} aria-pressed={motionEnabled} title={systemReduced ? "Your device requests reduced motion" : "Toggle smooth scrolling and decorative animation"}><span aria-hidden="true">{motionEnabled && !systemReduced ? "◉" : "○"}</span> Motion {systemReduced && motionEnabled ? "reduced" : motionEnabled ? "on" : "off"}</button></>;
 }
