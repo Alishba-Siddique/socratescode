@@ -299,7 +299,7 @@ export default function Home() {
               <h2 data-caption="0">
                 <span>Built for real-world</span>
                 <br />
-                independent thinking.</span>
+                <span>independent thinking.</span>
               </h2>
               <p data-caption="1">
                 <span>An AI that believes the best answer</span>
