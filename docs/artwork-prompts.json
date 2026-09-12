@@ -100,6 +100,44 @@
       "prompt": "Use case: precise-object-edit. Add dark espresso sunglasses with subtle bronze hinges to the supplied front-facing Socrates sculpture. Keep his face directly facing the viewer, exact same alignment, scale, silhouette, crop, marble beard, brown robe, soft light and flat off-white background #f9f8f6. Change ONLY sunglasses over his eyes. Symmetrical frame naturally rests on nose and ears. No checkerboard, no other objects, no lettering. Matching website hover variant.",
       "edited": "2026-09-12",
       "referenceImages": "Original project artwork"
+    },
+    {
+      "name": "socratic-portrait",
+      "prompt": "Edit supplied marble Socrates portrait. Preserve full head, beard, shoulders and classical oil paint realism. Change teal background to soft warm ivory plaster #f9f8f6 and give drapery muted cocoa #754934 patina. Warm diffused daylight, gentle contrast, no dark vignette or halftone dots. Same square composition. No lettering.",
+      "ref": true,
+      "file": "socratic-portrait.webp",
+      "generator": "Built-in imagegen",
+      "updated": "2026-09-12"
+    },
+    {
+      "name": "socratic-dialogue",
+      "prompt": "Edit supplied Socrates and student painting. Preserve faces, gestures, geometric shapes and book; classical oil painting. Replace teal wall with warm ivory sunlit plaster and black lower shadows with clear warm travertine. Student robe muted cocoa brown #754934 instead of red. Remove decorative halftone dots. Soft warm neutral lighting, readable detail, consistent ivory brown educational website palette. Square crop. No new objects or lettering.",
+      "ref": true,
+      "file": "socratic-dialogue.webp",
+      "generator": "Built-in imagegen",
+      "updated": "2026-09-12"
+    },
+    {
+      "name": "socratic-hero",
+      "prompt": "Edit supplied scene of seated Socrates with raised finger and student. Preserve exact composition, faces, pose, full finger, book, architecture and quiet left space. Change student's teal robe to cocoa brown #754934, background cool tones to soft warm limestone ivory. Warm diffuse daylight, luminous ivory #f9f8f6 paper background. Retain museum-quality oil painting realism. Remove stippled black vignette, use subtle painted edges. No text, no laptops, no new objects.",
+      "ref": true,
+      "file": "socratic-hero.webp",
+      "generator": "Built-in imagegen",
+      "updated": "2026-09-12"
+    },
+    {
+      "name": "socratic-question-notebook",
+      "prompt": "Original square editorial oil painting for socratescode website. Close overhead diagonal view of an ancient philosopher's mature hand using a bronze stylus to draw a branching logical decision diagram on a wax tablet, ivory robe cuff, warm limestone table, a single brown leather notebook. No readable words or letters. Luminous warm ivory, cocoa #754934, taupe, restrained bronze. Fine realistic paint texture, premium clean composition, soft directional daylight. Distinct scene, no portrait, no laptop, no dark blue or teal.",
+      "file": "socratic-question-notebook.webp",
+      "generator": "Built-in imagegen",
+      "updated": "2026-09-12"
+    },
+    {
+      "name": "socratic-question-discovery",
+      "prompt": "Original square editorial neoclassical oil painting for socratescode website. One young adult female student in an ivory linen robe with a muted cocoa brown #754934 shawl, shown in three-quarter profile at a limestone desk, looking thoughtfully at a small bronze geometric puzzle held delicately in her hands. Waist-up composition, full head visible with margin, softly lit warm ivory plaster background. Fine realistic anatomy, subtle canvas texture, serene warm daylight. Fresh distinct scene, no Socrates, no laptops, no text, no teal, no dark vignette.",
+      "file": "socratic-question-discovery.webp",
+      "generator": "Built-in imagegen",
+      "updated": "2026-09-12"
     }
   ],
   "referenceScope": "Only previously generated original project artwork was used for edits; no external assets."
