@@ -28,8 +28,8 @@ export function Mentor() {
     >
       <span className="mentor-portrait">
         <Image
-          src="/images/socratic-mentor-front.webp"
-          alt="Socrates looking directly at you"
+          src="/images/socratic-mentor-v3.webp"
+          alt="Socrates looking on the side"
           fill
           sizes="128px"
           priority
@@ -47,7 +47,7 @@ export function Mentor() {
         />
       </span>
       <span className="mentor-hint" aria-hidden="true">
-        {active ? "Stay curious." : "Say hello"}
+        {active ? "Stay curious." : ""}
       </span>
     </button>
   );

@@ -827,7 +827,7 @@ test("Socrates faces the visitor and sunglasses work by hover, keyboard and tap"
   const mentor = page.getByRole("button", { name: "Socrates sunglasses" });
   await expect(mentor.locator(".mentor-base")).toHaveAttribute(
     "src",
-    "/images/socratic-mentor-front.webp",
+    "/images/socratic-mentor-v3.webp",
   );
   await mentor.hover();
   await expect(mentor).toHaveAttribute("data-active", "true");
