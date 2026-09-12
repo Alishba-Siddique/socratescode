@@ -302,14 +302,14 @@ export default function Home() {
                 independent thinking.</span>
               </h2>
               <p data-caption="1">
-                An AI that believes the best answer
+                <span>An AI that believes the best answer</span>
                 <br />
-                starts with a better question.
+               <span> starts with a better question.</span>
               </p>
               <p data-caption="2">
-                Because understanding
+               <span> Because understanding</span>
                 <br />
-                is something you build.
+                <span>is something you build.</span>
               </p>
             </div>
             <div className="story-finale content-width">
