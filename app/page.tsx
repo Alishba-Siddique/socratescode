@@ -297,9 +297,9 @@ export default function Home() {
             </div>
             <div className="story-captions">
               <h2 data-caption="0">
-                Built for real-world
+                <span>Built for real-world</span>
                 <br />
-                independent thinking.
+                independent thinking.</span>
               </h2>
               <p data-caption="1">
                 An AI that believes the best answer
