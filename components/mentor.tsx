@@ -20,7 +20,7 @@ export function Mentor() {
       onKeyDown={(event) => { if (event.key === "Escape") { setPinned(false); setHovered(false); } }}
     >
       <span className="mentor-portrait">
-        <Image src="/images/socratic-mentor-front.webp" alt="Socrates looking directly at you" fill sizes="128px" priority unoptimized className="mentor-base" />
+        <Image src="/images/socratic-mentor-v3.webp" alt="Socrates looking directly at you" fill sizes="128px" priority unoptimized className="mentor-base" />
         <Image src="/images/socratic-mentor-front-sunglasses.webp" alt="" fill sizes="128px" priority unoptimized className="mentor-glasses" />
       </span>
       <span className="mentor-hint" aria-hidden="true">{active ? "Stay curious." : "Say hello"}</span>
