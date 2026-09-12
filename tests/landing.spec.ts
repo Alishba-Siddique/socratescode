@@ -913,7 +913,7 @@ test("floating paintings move around a readable central question", async ({
     .evaluateAll((imgs) => imgs.map((i) => i.getAttribute("src")));
   expect(new Set(images).size).toBe(images.length);
   await expect(
-    page.locator('img[src="/images/socratic-laptop-hero.webp"]'),
+    page.locator('img[src="/images/socratic-laptop-complete.webp"]'),
   ).toHaveCount(1);
 });
 
