@@ -413,52 +413,18 @@ test("touch scrolling animates mobile scenes and navigation works at phone sizes
   }
 });
 
-test("animations always run despite system settings and old saved preferences", async ({
-  page,
-}) => {
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.addInitScript(() =>
-    localStorage.setItem("socrates-motion", "off"),
-  );
-  await page.goto("/?motion=off");
-  await expect(page.locator("html")).toHaveClass(/motion-ready/);
-  await expect(page.locator("html")).toHaveClass(/lenis/);
-  await expect(page.locator(".motion-toggle")).toHaveCount(0);
-  await expect(page.locator(".thinking-preview")).toBeVisible();
-  expect(
-    await page
-      .locator(".thinking-preview")
-      .evaluate((el) => getComputedStyle(el).animationName),
-  ).not.toBe("none");
-  await page.mouse.move(1100, 600);
-  const samples = page.evaluate(
-    () =>
-      new Promise<number[]>((resolve) => {
-        const values: number[] = [];
-        const tick = () => {
-          values.push(scrollY);
-          if (values.length >= 24) resolve(values);
-          else requestAnimationFrame(tick);
-        };
-        requestAnimationFrame(tick);
-      }),
-  );
-  await page.mouse.wheel(0, 850);
-  expect(new Set(await samples).size).toBeGreaterThan(4);
-  await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(800);
-  await expect
-    .poll(() =>
-      page
-        .locator(".hero-content")
-        .evaluate((el) => Number(getComputedStyle(el).opacity)),
-    )
-    .toBe(1);
-  await page.emulateMedia({ reducedMotion: "no-preference" });
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  await expect(page.locator("html")).toHaveClass(/motion-ready/);
-  await page.reload();
-  await expect(page.locator("html")).toHaveClass(/lenis/);
-  await expect(page.locator(".thinking-preview")).toBeVisible();
+test("reduced motion uses native scrolling and responds to preference changes", async ({ page }) => {
+ await page.emulateMedia({ reducedMotion: "reduce" });
+ await page.goto("/");
+ await expect(page.locator("html")).toHaveAttribute("data-motion", "reduced");
+ await expect(page.locator("html")).not.toHaveClass(/lenis/);
+ await expect(page.locator(".thinking-preview")).toBeVisible();
+ expect(await page.locator(".question-art").first().evaluate(el => getComputedStyle(el).animationName)).toBe("none");
+ await page.emulateMedia({ reducedMotion: "no-preference" });
+ await expect(page.locator("html")).toHaveClass(/lenis/);
+ await page.emulateMedia({ reducedMotion: "reduce" });
+ await expect(page.locator("html")).not.toHaveClass(/lenis/);
+ await expect(page.locator(".editorial-statement")).toBeVisible();
 });
 
 test("scroll advances all five learning stages and reverses without losing manual navigation", async ({

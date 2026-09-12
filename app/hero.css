@@ -792,3 +792,19 @@
  .story-scene, .study-scene, .practice-scene, .curriculum-scene { min-height: 0 !important; height: auto !important; }
  .story-sticky, .study-sticky, .practice-sticky, .curriculum-sticky { position: relative !important; top: auto !important; }
 }
+
+.principles { display: block; }
+.reasoning-exhibit { border: 0; border-radius: 44px; background: #f9f8f6; }
+.principles .principles-art { mask-image: linear-gradient(to bottom, transparent, #000 5%, #000 88%, transparent); }
+.story-finale, .motion-ready .story-finale { grid-template-columns: .85fr 1.3fr; gap: 2%; }
+.story-finale h2 { font-size: clamp(44px, 5.4vw, 78px); line-height: 1.02; }
+.story-finale .finale-art { width: 100%; height: auto; max-height: none; aspect-ratio: 3 / 2; overflow: visible; padding: 12px; }
+.story-finale .finale-art img { object-fit: contain; object-position: center !important; transform: none !important; mask-image: linear-gradient(to right, transparent, #000 4%, #000 94%, transparent), linear-gradient(to bottom, transparent, #000 5%, #000 90%, transparent); mask-composite: intersect; }
+.motion-ready .story-finale .finale-art { clip-path: none; transform: none; }
+@media (max-width: 760px) {
+ .story-finale, .motion-ready .story-finale { display: grid; grid-template-columns: 1fr; gap: 14px; padding-block: 80px 26px; }
+ .story-finale h2 { font-size: clamp(36px, 8vw, 52px); text-align: center; max-width: none; }
+ .story-finale h2 br { display: none !important; }
+ .story-finale .finale-art { width: min(100%, 460px); max-height: none; justify-self: center; }
+ .reasoning-exhibit { border-radius: 24px; }
+}
