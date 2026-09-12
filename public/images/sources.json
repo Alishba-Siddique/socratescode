@@ -24,7 +24,9 @@
     "socratic-mentor-front.webp",
     "socratic-mentor-front-sunglasses.webp",
     "socratic-question-notebook.webp",
-    "socratic-question-discovery.webp"
+    "socratic-question-discovery.webp",
+    "socratic-laptop-complete.webp",
+    "socratic-dialogue-complete.webp"
   ],
   "animation": {
     "implementation": "Contained CSS artwork motion and a separate live React code preview. The former laptop GIF is no longer used."

@@ -24,7 +24,7 @@ Browser checks use an installed Chrome browser. On a machine without Chrome, ins
 
 Set `NEXT_PUBLIC_SITE_URL` to your deployed site's absolute URL before the production build to generate correct social-preview image URLs. No API keys or backend services are needed for this landing page.
 
-Animations are always enabled: Lenis, scroll scenes, CSS reveals, and the laptop GIF run on every visit. System motion settings, old saved preferences, and `?motion=off` links do not disable them.
+Motion defaults to on, with Lenis, pinned scenes, scrolling type and image reveals. The visible Motion button remembers an explicit choice using socrates-motion-v2; old preferences are ignored. Device reduced-motion settings use a readable native layout by default, and visitors may explicitly enable animation. Turning motion off also pauses automatic previews.
 
 ## Features
 
@@ -45,7 +45,7 @@ The learning exercise is a deterministic browser demonstration of the loop shown
 
 ## Artwork and provenance
 
-All final illustrations were generated using the built-in image generation tool from text prompts, with no input/reference images. They use classical philosophical imagery as a creative theme. No downloaded Contra, Pinterest, or museum art remains in `public/images`.
+All final illustrations were generated using the built-in image generation tool from text prompts, with only our own generated artwork used as edit references. They use classical philosophical imagery as a creative theme. No downloaded Contra, Pinterest, or museum art remains in `public/images`.
 
 - Final assets: `public/images/socratic-*.webp`.
 - Corrected laptop artwork: `public/images/socratic-coder-v2.webp`.

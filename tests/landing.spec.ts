@@ -112,6 +112,7 @@ test("scroll pins the collage and reverses its image and text transitions", asyn
   await page.goto("/");
   await expect(page.locator("html")).toHaveClass(/motion-ready/);
   const scene = page.locator('[data-scene="story"]');
+  await page.evaluate(() => document.fonts.ready);
   const bounds = await scene.boundingBox();
   expect(bounds).not.toBeNull();
   const start = bounds!.y;
@@ -279,7 +280,9 @@ test("Lenis eases real wheel input and anchors finish at their destination", asy
           if (positions.length === 30) resolve(positions);
           else requestAnimationFrame(sample);
         };
-        requestAnimationFrame(sample);
+        window.addEventListener("wheel", () => requestAnimationFrame(sample), {
+          once: true,
+        });
       }),
   );
   await page.mouse.move(1000, 600);
@@ -413,18 +416,25 @@ test("touch scrolling animates mobile scenes and navigation works at phone sizes
   }
 });
 
-test("reduced motion uses native scrolling and responds to preference changes", async ({ page }) => {
- await page.emulateMedia({ reducedMotion: "reduce" });
- await page.goto("/");
- await expect(page.locator("html")).toHaveAttribute("data-motion", "reduced");
- await expect(page.locator("html")).not.toHaveClass(/lenis/);
- await expect(page.locator(".thinking-preview")).toBeVisible();
- expect(await page.locator(".question-art").first().evaluate(el => getComputedStyle(el).animationName)).toBe("none");
- await page.emulateMedia({ reducedMotion: "no-preference" });
- await expect(page.locator("html")).toHaveClass(/lenis/);
- await page.emulateMedia({ reducedMotion: "reduce" });
- await expect(page.locator("html")).not.toHaveClass(/lenis/);
- await expect(page.locator(".editorial-statement")).toBeVisible();
+test("reduced motion uses native scrolling and responds to preference changes", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+  await expect(page.locator("html")).toHaveAttribute("data-motion", "reduced");
+  await expect(page.locator("html")).not.toHaveClass(/lenis/);
+  await expect(page.locator(".thinking-preview")).toBeVisible();
+  expect(
+    await page
+      .locator(".question-art")
+      .first()
+      .evaluate((el) => getComputedStyle(el).animationName),
+  ).toBe("none");
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await expect(page.locator("html")).toHaveClass(/lenis/);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await expect(page.locator("html")).not.toHaveClass(/lenis/);
+  await expect(page.locator(".editorial-statement")).toBeVisible();
 });
 
 test("scroll advances all five learning stages and reverses without losing manual navigation", async ({
@@ -707,7 +717,8 @@ test("artwork columns retain their width and reveal loaded images on desktop and
     ]) {
       const art = page.locator(selector).first();
       await art.scrollIntoViewIfNeeded();
-      if (selector !== ".principles-art") await expect(art).toHaveClass(/is-revealed/);
+      if (selector !== ".principles-art")
+        await expect(art).toHaveClass(/is-revealed/);
       expect(
         (await art.boundingBox())!.width,
         selector + " at " + width,
@@ -724,11 +735,12 @@ test("artwork columns retain their width and reveal loaded images on desktop and
             ),
         )
         .toBeTruthy();
-      if (selector !== ".principles-art") await expect
-        .poll(() =>
-          art.evaluate((el) => getComputedStyle(el, "::after").transform),
-        )
-        .toBe("matrix(1, 0, 0, 0, 0, 0)");
+      if (selector !== ".principles-art")
+        await expect
+          .poll(() =>
+            art.evaluate((el) => getComputedStyle(el, "::after").transform),
+          )
+          .toBe("matrix(1, 0, 0, 0, 0, 0)");
     }
     expect(
       await page.evaluate(
@@ -808,52 +820,135 @@ test("product hero and approach stay readable without split-image layouts at eve
   await expect(page.locator("#curriculum-title")).toBeInViewport();
 });
 
-
-test('Socrates faces the visitor and sunglasses work by hover, keyboard and tap', async ({page}) => {
- await page.goto('/');
- const mentor=page.getByRole('button',{name:'Socrates sunglasses'});
- await expect(mentor.locator('.mentor-base')).toHaveAttribute('src','/images/socratic-mentor-front.webp');
- await mentor.hover();
- await expect(mentor).toHaveAttribute('data-active','true');
- await expect(mentor.locator('.mentor-glasses')).toHaveCSS('opacity','1');
- await page.mouse.move(10,10);
- await expect(mentor).toHaveAttribute('data-active','false');
- await mentor.focus(); await mentor.press('Enter');
- await expect(mentor).toHaveAttribute('aria-pressed','true');
- await mentor.press('Escape');
- await expect(mentor).toHaveAttribute('aria-pressed','false');
- const context=await page.context().browser()!.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true});
- try {const phone=await context.newPage();await phone.goto(page.url());const bust=phone.getByRole('button',{name:'Socrates sunglasses'});await bust.tap();await expect(bust).toHaveAttribute('aria-pressed','true');await bust.tap();await expect(bust).toHaveAttribute('data-active','false');} finally {await context.close();}
-});
-
-test('floating paintings move around a readable central question',async({page})=>{
- await page.goto('/');await expect(page.locator('html')).toHaveClass(/motion-ready/);
- for(const size of [{width:1440,height:1000},{width:390,height:844},{width:320,height:568}]){
-  await page.setViewportSize(size);
-  for(const progress of [0.1,0.35,0.6]){
-   await page.locator('.story-scene').evaluate((el,p)=>scrollTo({top:scrollY+el.getBoundingClientRect().top+(el.clientHeight-innerHeight)*p,behavior:'instant'}),progress);
-   await page.waitForTimeout(700);
-   const collisions=await page.evaluate(()=>{
-    const captions=[...document.querySelectorAll('.story-captions > *')].filter(el=>Number(getComputedStyle(el).opacity)>0.5);
-    const pictures=[...document.querySelectorAll('.float-image')];
-    return captions.flatMap(c=>pictures.filter(p=>{const a=c.getBoundingClientRect(),b=p.getBoundingClientRect();return Math.min(a.right,b.right)>Math.max(a.left,b.left)&&Math.min(a.bottom,b.bottom)>Math.max(a.top,b.top);}));
-   });
-   expect(collisions.length,'art overlaps caption at '+size.width+' / '+progress).toBe(0);
+test("Socrates faces the visitor and sunglasses work by hover, keyboard and tap", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const mentor = page.getByRole("button", { name: "Socrates sunglasses" });
+  await expect(mentor.locator(".mentor-base")).toHaveAttribute(
+    "src",
+    "/images/socratic-mentor-front.webp",
+  );
+  await mentor.hover();
+  await expect(mentor).toHaveAttribute("data-active", "true");
+  await expect(mentor.locator(".mentor-glasses")).toHaveCSS("opacity", "1");
+  await page.mouse.move(10, 10);
+  await expect(mentor).toHaveAttribute("data-active", "false");
+  await mentor.focus();
+  await mentor.press("Enter");
+  await expect(mentor).toHaveAttribute("aria-pressed", "true");
+  await mentor.press("Escape");
+  await expect(mentor).toHaveAttribute("aria-pressed", "false");
+  const context = await page
+    .context()
+    .browser()!
+    .newContext({
+      viewport: { width: 390, height: 844 },
+      hasTouch: true,
+      isMobile: true,
+    });
+  try {
+    const phone = await context.newPage();
+    await phone.goto(page.url());
+    const bust = phone.getByRole("button", { name: "Socrates sunglasses" });
+    await bust.tap();
+    await expect(bust).toHaveAttribute("aria-pressed", "true");
+    await bust.tap();
+    await expect(bust).toHaveAttribute("data-active", "false");
+  } finally {
+    await context.close();
   }
- }
- const images=await page.locator('img').evaluateAll(imgs=>imgs.map(i=>i.getAttribute('src')));
- expect(new Set(images).size).toBe(images.length);
- await expect(page.locator('img[src="/images/socratic-laptop-hero.webp"]')).toHaveCount(1);
 });
 
-test("motion toggle controls Lenis and persists the choice", async ({ page }) => {
- await page.goto("/");
- await expect(page.locator("html")).toHaveClass(/lenis/);
- await page.getByRole("button", { name: /Motion on/ }).click();
- await expect(page.locator("html")).not.toHaveClass(/lenis/);
- await expect(page.locator("html")).toHaveAttribute("data-motion", "off");
- await page.reload();
- await expect(page.getByRole("button", { name: /Motion off/ })).toBeVisible();
- await page.getByRole("button", { name: /Motion off/ }).click();
- await expect(page.locator("html")).toHaveClass(/lenis/);
+test("floating paintings move around a readable central question", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await expect(page.locator("html")).toHaveClass(/motion-ready/);
+  for (const size of [
+    { width: 1440, height: 1000 },
+    { width: 390, height: 844 },
+    { width: 320, height: 568 },
+  ]) {
+    await page.setViewportSize(size);
+    for (const progress of [0.1, 0.35, 0.6]) {
+      await page
+        .locator(".story-scene")
+        .evaluate(
+          (el, p) =>
+            scrollTo({
+              top:
+                scrollY +
+                el.getBoundingClientRect().top +
+                (el.clientHeight - innerHeight) * p,
+              behavior: "instant",
+            }),
+          progress,
+        );
+      await page.waitForTimeout(700);
+      const collisions = await page.evaluate(() => {
+        const captions = [
+          ...document.querySelectorAll(".story-captions > *"),
+        ].filter((el) => Number(getComputedStyle(el).opacity) > 0.5);
+        const pictures = [...document.querySelectorAll(".float-image")];
+        return captions.flatMap((c) =>
+          pictures.filter((p) => {
+            const a = c.getBoundingClientRect(),
+              b = p.getBoundingClientRect();
+            return (
+              Math.min(a.right, b.right) > Math.max(a.left, b.left) &&
+              Math.min(a.bottom, b.bottom) > Math.max(a.top, b.top)
+            );
+          }),
+        );
+      });
+      expect(
+        collisions.length,
+        "art overlaps caption at " + size.width + " / " + progress,
+      ).toBe(0);
+    }
+  }
+  const images = await page
+    .locator("img")
+    .evaluateAll((imgs) => imgs.map((i) => i.getAttribute("src")));
+  expect(new Set(images).size).toBe(images.length);
+  await expect(
+    page.locator('img[src="/images/socratic-laptop-hero.webp"]'),
+  ).toHaveCount(1);
+});
+
+test("motion toggle controls Lenis and persists the choice", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await expect(page.locator("html")).toHaveClass(/lenis/);
+  await page.getByRole("button", { name: /Motion on/ }).click();
+  await expect(page.locator("html")).not.toHaveClass(/lenis/);
+  await expect(page.locator("html")).toHaveAttribute("data-motion", "off");
+  await page.reload();
+  await expect(page.getByRole("button", { name: /Motion off/ })).toBeVisible();
+  await page.getByRole("button", { name: /Motion off/ }).click();
+  await expect(page.locator("html")).toHaveClass(/lenis/);
+});
+
+test("legacy motion preferences do not disable the restored choreography", async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    localStorage.setItem("socrates-motion", "off"),
+  );
+  await page.goto("/");
+  await expect(page.locator("html")).toHaveClass(/motion-ready/);
+  await expect(page.locator("html")).toHaveClass(/lenis/);
+  await expect(page.getByRole("button", { name: /Motion on/ })).toBeVisible();
+});
+test("visitors can explicitly enable motion from the reduced setting", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+  await expect(page.locator("html")).toHaveAttribute("data-motion", "reduced");
+  await page.getByRole("button", { name: /Motion reduced/ }).click();
+  await expect(page.locator("html")).toHaveAttribute("data-motion", "on");
+  await expect(page.locator("html")).toHaveClass(/lenis/);
 });

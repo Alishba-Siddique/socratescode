@@ -138,6 +138,25 @@
       "file": "socratic-question-discovery.webp",
       "generator": "Built-in imagegen",
       "updated": "2026-09-12"
+    },
+    {
+      "name": "socratic-laptop-complete",
+      "prompt": "Edit this Socrates laptop painting into a complete centered cutout for a sophisticated website on cocoa brown #754934. Preserve his identity, ivory robe, laptop angle, and museum quality realistic oil painting style. Extend the cut-off right shoulder, drapery and stone seat so the entire seated silhouette is visible, with generous transparent padding on ALL four sides. Include full head, both hands, complete laptop and seat, draped lower body, no hard rectangular cutoff. The laptop outer lid is plain matte dark bronze, no code or lettering on its outside. Remove halftone dots. Real transparent alpha background, no white rectangle, no cast shadow backdrop. Centered square composition. All figure edges natural and carefully painted.",
+      "file": "socratic-laptop-complete.webp",
+      "generator": "Built-in imagegen",
+      "updated": "2026-09-13"
+    },
+    {
+      "name": "socratic-dialogue-complete",
+      "prompt": "Recompose this original Socrates and student oil painting as a complete centered, wide classical scene for a warm ivory website. Preserve Socrates' face, raised finger, book and student, ivory and cocoa #754934 robes. Both seated figures fully contained inside the canvas with safe margin around heads, hands and robes; do not clip the student's head or shoulders at the right edge. Group centered. Subtle Athenian architecture behind them, warm luminous ivory background #f9f8f6 fading naturally at all four edges into unpainted ivory paper; no harsh rectangular boundary, no vignette, no halftone. Landscape 3:2, finely detailed realistic oil painting, readable gentle contrast, no text, no laptop.",
+      "file": "socratic-dialogue-complete.webp",
+      "generator": "Built-in imagegen",
+      "updated": "2026-09-13"
+    },
+    {
+      "file": "socratic-laptop-complete.webp",
+      "generator": "Built-in imagegen",
+      "revision": "Replace baked checkerboard with solid #754934, preserve complete seated figure and plain laptop lid; no alpha in final asset."
     }
   ],
   "referenceScope": "Only previously generated original project artwork was used for edits; no external assets."

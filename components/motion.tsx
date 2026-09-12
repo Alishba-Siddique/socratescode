@@ -14,8 +14,14 @@ export function Motion({ children }: { children: ReactNode }) {
   const [motionEnabled, setMotionEnabled] = useState(true);
   const [systemReduced, setSystemReduced] = useState(false);
   const toggleMotion = () => {
-    try { localStorage.setItem("socrates-motion", motionEnabled ? "off" : "on"); } catch { /* Storage can be unavailable in private browsing. */ }
-    window.dispatchEvent(new CustomEvent("socrates:motion-preference", { detail: !motionEnabled }));
+    try {
+      localStorage.setItem("socrates-motion-v2", motionEnabled ? "off" : "on");
+    } catch {
+      /* Storage can be unavailable in private browsing. */
+    }
+    window.dispatchEvent(
+      new CustomEvent("socrates:motion-preference", { detail: !motionEnabled }),
+    );
   };
   useEffect(() => {
     const root = document.documentElement;
@@ -27,16 +33,27 @@ export function Motion({ children }: { children: ReactNode }) {
     syncHeader();
     let cleanup = () => {};
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let preference: string | null = null;
     let enabled = true;
-    try { enabled = localStorage.getItem("socrates-motion") !== "off"; } catch { /* Use the default when storage is unavailable. */ }
+    try {
+      preference = localStorage.getItem("socrates-motion-v2");
+      enabled = preference !== "off";
+    } catch {
+      /* Use the default when storage is unavailable. */
+    }
     const setup = () => {
       cleanup();
-      setMotionEnabled(enabled);
-      setSystemReduced(reducedMotion.matches);
-      if (reducedMotion.matches || !enabled) {
-        root.dataset.motion = reducedMotion.matches ? "reduced" : "off";
-        document.querySelectorAll("[data-reveal], [data-image-reveal]").forEach((element) => element.classList.add("is-revealed"));
-        cleanup = () => { delete root.dataset.motion; };
+      const reduce = reducedMotion.matches && preference !== "on";
+      setMotionEnabled(enabled && !reduce);
+      setSystemReduced(reduce);
+      if (reduce || !enabled) {
+        root.dataset.motion = reduce ? "reduced" : "off";
+        document
+          .querySelectorAll("[data-reveal], [data-image-reveal]")
+          .forEach((element) => element.classList.add("is-revealed"));
+        cleanup = () => {
+          delete root.dataset.motion;
+        };
         return;
       }
       root.dataset.motion = "on";
@@ -157,6 +174,8 @@ export function Motion({ children }: { children: ReactNode }) {
         ...document.querySelectorAll<HTMLElement>("[data-ink]"),
       ];
       const marquee = document.querySelector<HTMLElement>(".marquee-track");
+      const connection =
+        document.querySelector<HTMLElement>("[data-connection]");
       const marqueeAnimation = marquee?.getAnimations()[0];
       let marqueeRate = 1;
       const finePointer = window.matchMedia(
@@ -263,6 +282,16 @@ export function Motion({ children }: { children: ReactNode }) {
         const inkRects = inkLines.map((element) =>
           element.getBoundingClientRect(),
         );
+        const connectionRect = connection?.getBoundingClientRect();
+        if (connection && connectionRect) {
+          const progress = clamp(
+            (height - connectionRect.top) / (height + connectionRect.height),
+          );
+          connection.style.setProperty(
+            "--connection-y",
+            `${(progress - 0.5) * -32}px`,
+          );
+        }
         root.style.setProperty(
           "--reading-progress",
           String(clamp(scroll / Math.max(1, documentHeight - height))),
@@ -410,6 +439,7 @@ export function Motion({ children }: { children: ReactNode }) {
         window.removeEventListener("socrates:select-stage", onStageSelect);
         root.classList.remove("motion-ready");
         root.style.removeProperty("--reading-progress");
+        connection?.style.removeProperty("--connection-y");
         scenes.forEach((scene) => {
           scene.element.removeAttribute("style");
           [...scene.captions, ...scene.floats].forEach((element) =>
@@ -425,6 +455,7 @@ export function Motion({ children }: { children: ReactNode }) {
     };
     const onPreference = (event: Event) => {
       enabled = Boolean((event as CustomEvent<boolean>).detail);
+      preference = enabled ? "on" : "off";
       setup();
     };
     setup();
@@ -437,5 +468,25 @@ export function Motion({ children }: { children: ReactNode }) {
       window.removeEventListener("scroll", syncHeader);
     };
   }, []);
-  return <>{children}<button className="motion-control" type="button" onClick={toggleMotion} aria-pressed={motionEnabled} title={systemReduced ? "Your device requests reduced motion" : "Toggle smooth scrolling and decorative animation"}><span aria-hidden="true">{motionEnabled && !systemReduced ? "◉" : "○"}</span> Motion {systemReduced && motionEnabled ? "reduced" : motionEnabled ? "on" : "off"}</button></>;
+  return (
+    <>
+      {children}
+      <button
+        className="motion-control"
+        type="button"
+        onClick={toggleMotion}
+        aria-pressed={motionEnabled}
+        title={
+          systemReduced
+            ? "Your device requests reduced motion"
+            : "Toggle smooth scrolling and decorative animation"
+        }
+      >
+        <span aria-hidden="true">
+          {motionEnabled && !systemReduced ? "◉" : "○"}
+        </span>{" "}
+        Motion {systemReduced ? "reduced" : motionEnabled ? "on" : "off"}
+      </button>
+    </>
+  );
 }

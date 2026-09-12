@@ -1,5 +1,5 @@
 import { Mentor } from "@/components/mentor";
-﻿import Image from "next/image";
+import Image from "next/image";
 import { RevealLines } from "@/components/reveal-lines";
 import { Motion } from "@/components/motion";
 import {
@@ -48,11 +48,11 @@ const artwork: Record<string, { file: string; position?: string }> = {
     position: "center",
   },
   finale: {
-    file: "socratic-hero",
+    file: "socratic-dialogue-complete",
     position: "center",
   },
   "gallery-3": {
-    file: "socratic-laptop-hero",
+    file: "socratic-laptop-complete",
     position: "center",
   },
   "gallery-1": {
@@ -313,14 +313,11 @@ export default function Home() {
               </p>
             </div>
             <div className="story-finale content-width">
+              <span className="finale-eyebrow eyebrow">
+                A LITTLE CURIOSITY CHANGES EVERYTHING
+              </span>
               <h2>
-                The
-                <br />
-                Art of
-                <br />
-                Thinking
-                <br />
-                for Yourself.
+                The art of <em>thinking for yourself.</em>
               </h2>
               <div className="finale-art">
                 <Art
@@ -328,6 +325,9 @@ export default function Home() {
                   alt="Socrates reflecting on a question in a classical courtyard"
                 />
               </div>
+              <p className="finale-note">
+                Ask a better question. Find your own way forward.
+              </p>
             </div>
             <span className="story-running-label">
               THE MIND IS NOT A VESSEL TO BE FILLED.
@@ -370,16 +370,12 @@ export default function Home() {
           className="principles"
           id="principles"
           aria-labelledby="principles-title"
+          data-connection
         >
           <div className="content-width principles-content" data-reveal>
             <span className="eyebrow">THE MISSING SIGNAL: UNDERSTANDING</span>
             <h2 id="principles-title">
-              <RevealLines
-                lines={[
-                  "Make the connection.",
-                  "Then make it your own.",
-                ]}
-              />
+              <RevealLines lines={["Understanding.", "Made by you."]} />
             </h2>
             <p>
               SocratesCode helps you move from recognizing syntax to reasoning
@@ -396,14 +392,30 @@ export default function Home() {
             </div>
           </div>
           <div className="reasoning-exhibit content-width">
-            <div className="exhibit-caption"><span>ANCIENT CURIOSITY. MODERN PRACTICE.</span><span>EST. IN A QUESTION</span></div>
+            <div className="connection-orbits" aria-hidden="true">
+              <i />
+              <i />
+              <i />
+            </div>
             <div className="principles-art">
-              <Art name="gallery-3" alt="Socrates seated with his laptop, his full head and hands visible" />
+              <Art
+                name="gallery-3"
+                alt="Socrates seated with his laptop, his full head and hands visible"
+              />
             </div>
             <ol className="exhibit-trail" aria-label="Your reasoning process">
-              <li><span>01 / PREDICT</span><strong>What will happen?</strong></li>
-              <li><span>02 / TRACE</span><strong>Follow the evidence.</strong></li>
-              <li><span>03 / EXPLAIN</span><strong>Tell us why.</strong></li>
+              <li>
+                <span>01 / PREDICT</span>
+                <strong>Before you run.</strong>
+              </li>
+              <li>
+                <span>02 / TRACE</span>
+                <strong>Follow each step.</strong>
+              </li>
+              <li>
+                <span>03 / EXPLAIN</span>
+                <strong>Own the answer.</strong>
+              </li>
             </ol>
           </div>
           <div className="principle-stats">
@@ -428,17 +440,32 @@ export default function Home() {
         >
           <div className="statement-line" data-reveal>
             <span data-ink>Questions</span>
-            <div className="question-art question-art-portrait"><Art name="question-portrait" alt="A marble portrait of Socrates, deep in thought" /></div>
+            <div className="question-art question-art-portrait">
+              <Art
+                name="question-portrait"
+                alt="A marble portrait of Socrates, deep in thought"
+              />
+            </div>
           </div>
           <div className="statement-line align-right" data-reveal>
-            <div className="question-art question-art-notebook"><Art name="question-notebook" alt="A philosopher sketching a branching idea on a tablet" /></div>
+            <div className="question-art question-art-notebook">
+              <Art
+                name="question-notebook"
+                alt="A philosopher sketching a branching idea on a tablet"
+              />
+            </div>
             <span data-ink>that</span>
           </div>
           <div className="statement-line align-center" data-reveal>
             <span data-ink>make you</span>
           </div>
           <div className="statement-line" data-reveal>
-            <div className="question-art question-art-discovery"><Art name="question-discovery" alt="A student exploring a bronze geometric puzzle" /></div>
+            <div className="question-art question-art-discovery">
+              <Art
+                name="question-discovery"
+                alt="A student exploring a bronze geometric puzzle"
+              />
+            </div>
             <span data-ink>think.</span>
           </div>
           <div className="statement-note" data-reveal>

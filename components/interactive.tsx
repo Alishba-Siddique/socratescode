@@ -388,7 +388,11 @@ export function TraceDemo() {
       <div className="demo-playback">
         <span>
           <i aria-hidden="true" />
-          {manual ? "YOUR TURN" : motionRunning ? "LIVE WALKTHROUGH" : "MOTION PAUSED"}
+          {manual
+            ? "YOUR TURN"
+            : motionRunning
+              ? "LIVE WALKTHROUGH"
+              : "MOTION PAUSED"}
         </span>
         <button
           type="button"
@@ -643,11 +647,19 @@ export function ThinkingPreview() {
         <button
           type="button"
           disabled={!motionRunning}
-          title={!motionRunning ? "Enable motion to play the preview; you can still select any stage." : undefined}
+          title={
+            !motionRunning
+              ? "Enable motion to play the preview; you can still select any stage."
+              : undefined
+          }
           onClick={() => setPlaying((value) => !value)}
           aria-label={playing ? "Pause preview" : "Play preview"}
         >
-          {!motionRunning ? "Motion paused" : playing ? "Pause preview" : "Play preview"}
+          {!motionRunning
+            ? "Motion paused"
+            : playing
+              ? "Pause preview"
+              : "Play preview"}
           <span aria-hidden="true">{playing ? "‖" : "▷"}</span>
         </button>
       </div>
