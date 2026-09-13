@@ -24,7 +24,7 @@ Browser checks use an installed Chrome browser. On a machine without Chrome, ins
 
 Set `NEXT_PUBLIC_SITE_URL` to your deployed site's absolute URL before the production build to generate correct social-preview image URLs. No API keys or backend services are needed for this landing page.
 
-Motion defaults to on, with Lenis, pinned scenes, scrolling type and image reveals. The visible Motion button remembers an explicit choice using socrates-motion-v2; old preferences are ignored. Device reduced-motion settings use a readable native layout by default, and visitors may explicitly enable animation. Turning motion off also pauses automatic previews.
+Motion stays on with Lenis, pinned scenes, scrolling type and image reveals, per the September 14 request. The settings button and stored opt-out are removed. A subtle fine-pointer halo shares the existing RAF clock; native cursors and touch behavior remain. Scrollbars use #754934.
 
 ## Features
 
