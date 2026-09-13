@@ -323,8 +323,8 @@ test("reveals replay when scrolling back down", async ({ page }) => {
   await reveal.scrollIntoViewIfNeeded();
   await expect(reveal).toHaveClass(/is-revealed/);
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await expect(page.locator("html")).not.toHaveClass(/lenis/);
-  await expect(page.locator("html")).not.toHaveClass(/motion-ready/);
+  await expect(page.locator("html")).toHaveClass(/lenis/);
+  await expect(page.locator("html")).toHaveClass(/motion-ready/);
 });
 
 test("touch scrolling animates mobile scenes and navigation works at phone sizes", async ({
@@ -414,27 +414,6 @@ test("touch scrolling animates mobile scenes and navigation works at phone sizes
   } finally {
     await context.close();
   }
-});
-
-test("reduced motion uses native scrolling and responds to preference changes", async ({
-  page,
-}) => {
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.goto("/");
-  await expect(page.locator("html")).toHaveAttribute("data-motion", "reduced");
-  await expect(page.locator("html")).not.toHaveClass(/lenis/);
-  await expect(page.locator(".thinking-preview")).toBeVisible();
-  expect(
-    await page
-      .locator(".question-art")
-      .first()
-      .evaluate((el) => getComputedStyle(el).animationName),
-  ).toBe("none");
-  await page.emulateMedia({ reducedMotion: "no-preference" });
-  await expect(page.locator("html")).toHaveClass(/lenis/);
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  await expect(page.locator("html")).not.toHaveClass(/lenis/);
-  await expect(page.locator(".editorial-statement")).toBeVisible();
 });
 
 test("scroll advances all five learning stages and reverses without losing manual navigation", async ({
@@ -872,19 +851,17 @@ test("floating paintings move around a readable central question", async ({
   ]) {
     await page.setViewportSize(size);
     for (const progress of [0.1, 0.35, 0.6]) {
-      await page
-        .locator(".story-scene")
-        .evaluate(
-          (el, p) =>
-            scrollTo({
-              top:
-                scrollY +
-                el.getBoundingClientRect().top +
-                (el.clientHeight - innerHeight) * p,
-              behavior: "instant",
-            }),
-          progress,
-        );
+      await page.locator(".story-scene").evaluate(
+        (el, p) =>
+          scrollTo({
+            top:
+              scrollY +
+              el.getBoundingClientRect().top +
+              (el.clientHeight - innerHeight) * p,
+            behavior: "instant",
+          }),
+        progress,
+      );
       await page.waitForTimeout(700);
       const collisions = await page.evaluate(() => {
         const captions = [
@@ -917,38 +894,51 @@ test("floating paintings move around a readable central question", async ({
   ).toHaveCount(1);
 });
 
-test("motion toggle controls Lenis and persists the choice", async ({
+test("motion stays enabled without a settings button or stored opt-out", async ({
   page,
 }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem("socrates-motion", "off");
+    localStorage.setItem("socrates-motion-v2", "off");
+  });
+  await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
   await expect(page.locator("html")).toHaveClass(/lenis/);
-  await page.getByRole("button", { name: /Motion on/ }).click();
-  await expect(page.locator("html")).not.toHaveClass(/lenis/);
-  await expect(page.locator("html")).toHaveAttribute("data-motion", "off");
+  await expect(page.locator("html")).toHaveAttribute("data-motion", "on");
+  await expect(
+    page.getByRole("button", { name: /Motion (on|off|reduced)/ }),
+  ).toHaveCount(0);
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await expect(page.locator("html")).toHaveClass(/lenis/);
   await page.reload();
-  await expect(page.getByRole("button", { name: /Motion off/ })).toBeVisible();
-  await page.getByRole("button", { name: /Motion off/ }).click();
   await expect(page.locator("html")).toHaveClass(/lenis/);
 });
 
-test("legacy motion preferences do not disable the restored choreography", async ({
+test("cursor follows the pointer, responds to links and preserves native input", async ({
   page,
 }) => {
-  await page.addInitScript(() =>
-    localStorage.setItem("socrates-motion", "off"),
-  );
   await page.goto("/");
   await expect(page.locator("html")).toHaveClass(/motion-ready/);
-  await expect(page.locator("html")).toHaveClass(/lenis/);
-  await expect(page.getByRole("button", { name: /Motion on/ })).toBeVisible();
-});
-test("visitors can explicitly enable motion from the reduced setting", async ({
-  page,
-}) => {
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.goto("/");
-  await expect(page.locator("html")).toHaveAttribute("data-motion", "reduced");
-  await page.getByRole("button", { name: /Motion reduced/ }).click();
-  await expect(page.locator("html")).toHaveAttribute("data-motion", "on");
-  await expect(page.locator("html")).toHaveClass(/lenis/);
+  const cursor = page.locator(".cursor-aura");
+  await page.mouse.move(500, 400);
+  await expect(cursor).toHaveClass(/is-visible/);
+  await expect
+    .poll(() =>
+      cursor.evaluate((el) =>
+        Math.round(new DOMMatrix(getComputedStyle(el).transform).m41),
+      ),
+    )
+    .toBe(500);
+  await page.locator(".site-header a").first().hover();
+  await expect(cursor).toHaveClass(/is-interactive/);
+  expect(
+    await cursor.evaluate((el) => getComputedStyle(el).pointerEvents),
+  ).toBe("none");
+  await page.keyboard.press("Tab");
+  await expect(cursor).not.toHaveClass(/is-visible/);
+  expect(
+    await page
+      .locator("html")
+      .evaluate((el) => getComputedStyle(el).scrollbarColor),
+  ).toContain("117, 73, 52");
 });

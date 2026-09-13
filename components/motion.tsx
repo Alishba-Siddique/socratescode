@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import Lenis from "lenis";
 
 const clamp = (value: number, min = 0, max = 1) =>
@@ -11,18 +11,6 @@ const ease = (value: number) => value * value * (3 - 2 * value);
 
 /** Lenis and scroll scenes share one RAF clock; layout work runs only when dirty. */
 export function Motion({ children }: { children: ReactNode }) {
-  const [motionEnabled, setMotionEnabled] = useState(true);
-  const [systemReduced, setSystemReduced] = useState(false);
-  const toggleMotion = () => {
-    try {
-      localStorage.setItem("socrates-motion-v2", motionEnabled ? "off" : "on");
-    } catch {
-      /* Storage can be unavailable in private browsing. */
-    }
-    window.dispatchEvent(
-      new CustomEvent("socrates:motion-preference", { detail: !motionEnabled }),
-    );
-  };
   useEffect(() => {
     const root = document.documentElement;
     const header = document.querySelector<HTMLElement>(".site-header");
@@ -32,34 +20,12 @@ export function Motion({ children }: { children: ReactNode }) {
     window.addEventListener("scroll", syncHeader, { passive: true });
     syncHeader();
     let cleanup = () => {};
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    let preference: string | null = null;
-    let enabled = true;
-    try {
-      preference = localStorage.getItem("socrates-motion-v2");
-      enabled = preference !== "off";
-    } catch {
-      /* Use the default when storage is unavailable. */
-    }
     const setup = () => {
       cleanup();
-      const reduce = reducedMotion.matches && preference !== "on";
-      setMotionEnabled(enabled && !reduce);
-      setSystemReduced(reduce);
-      if (reduce || !enabled) {
-        root.dataset.motion = reduce ? "reduced" : "off";
-        document
-          .querySelectorAll("[data-reveal], [data-image-reveal]")
-          .forEach((element) => element.classList.add("is-revealed"));
-        cleanup = () => {
-          delete root.dataset.motion;
-        };
-        return;
-      }
       root.dataset.motion = "on";
       const lenis = new Lenis({
         autoRaf: false,
-        // This component owns the media-query lifecycle and destroys Lenis on reduction.
+        // The requested marketing experience keeps motion enabled.
         respectReducedMotion: false,
         lerp: 0.095,
         smoothWheel: true,
@@ -240,6 +206,47 @@ export function Motion({ children }: { children: ReactNode }) {
         );
       };
       window.addEventListener("socrates:select-stage", onStageSelect);
+      const cursor = document.querySelector<HTMLElement>(".cursor-aura");
+      const cursorPointer = window.matchMedia(
+        "(hover: hover) and (pointer: fine)",
+      );
+      let cursorX = 0,
+        cursorY = 0,
+        targetX = 0,
+        targetY = 0;
+      let cursorVisible = false;
+      const hideCursor = () => {
+        cursorVisible = false;
+        cursor?.classList.remove("is-visible");
+      };
+      const onPointer = (event: PointerEvent) => {
+        if (!cursor || !cursorPointer.matches || event.pointerType === "touch")
+          return hideCursor();
+        targetX = event.clientX;
+        targetY = event.clientY;
+        if (!cursorVisible) {
+          cursorX = targetX;
+          cursorY = targetY;
+        }
+        cursorVisible = true;
+        cursor.classList.add("is-visible");
+        const target = event.target instanceof Element ? event.target : null;
+        cursor.classList.toggle(
+          "is-interactive",
+          Boolean(target?.closest("a, button, summary")),
+        );
+        cursor.classList.toggle(
+          "is-input",
+          Boolean(
+            target?.closest("input, textarea, select, [contenteditable=true]"),
+          ),
+        );
+      };
+      window.addEventListener("pointermove", onPointer, { passive: true });
+      document.documentElement.addEventListener("pointerleave", hideCursor);
+      window.addEventListener("blur", hideCursor);
+      window.addEventListener("keydown", hideCursor);
+      cursorPointer.addEventListener("change", hideCursor);
       let frame = 0;
       let stopped = false;
       let previousTime = 0;
@@ -248,6 +255,16 @@ export function Motion({ children }: { children: ReactNode }) {
         frame = 0;
         if (stopped || document.hidden) return;
         lenis.raf(time);
+        if (cursor && cursorVisible) {
+          const follow =
+            1 -
+            Math.exp(
+              -Math.min(previousTime ? time - previousTime : 16, 64) / 45,
+            );
+          cursorX += (targetX - cursorX) * follow;
+          cursorY += (targetY - cursorY) * follow;
+          cursor.style.transform = `translate3d(${cursorX}px,${cursorY}px,0)`;
+        }
         const targetRate = 1 + clamp(Math.abs(lenis.velocity) * 0.055, 0, 2);
         const nextRate = marqueeRate + (targetRate - marqueeRate) * 0.12;
         if (marqueeAnimation && Math.abs(nextRate - marqueeRate) > 0.001) {
@@ -421,6 +438,15 @@ export function Motion({ children }: { children: ReactNode }) {
       schedule();
       cleanup = () => {
         stopped = true;
+        hideCursor();
+        window.removeEventListener("pointermove", onPointer);
+        document.documentElement.removeEventListener(
+          "pointerleave",
+          hideCursor,
+        );
+        window.removeEventListener("blur", hideCursor);
+        window.removeEventListener("keydown", hideCursor);
+        cursorPointer.removeEventListener("change", hideCursor);
         cancelAnimationFrame(frame);
         lenis.off("scroll", onLenisScroll);
         lenis.destroy();
@@ -453,40 +479,17 @@ export function Motion({ children }: { children: ReactNode }) {
         );
       };
     };
-    const onPreference = (event: Event) => {
-      enabled = Boolean((event as CustomEvent<boolean>).detail);
-      preference = enabled ? "on" : "off";
-      setup();
-    };
     setup();
-    window.addEventListener("socrates:motion-preference", onPreference);
-    reducedMotion.addEventListener("change", setup);
     return () => {
       cleanup();
-      window.removeEventListener("socrates:motion-preference", onPreference);
-      reducedMotion.removeEventListener("change", setup);
+      delete root.dataset.motion;
       window.removeEventListener("scroll", syncHeader);
     };
   }, []);
   return (
     <>
       {children}
-      <button
-        className="motion-control"
-        type="button"
-        onClick={toggleMotion}
-        aria-pressed={motionEnabled}
-        title={
-          systemReduced
-            ? "Your device requests reduced motion"
-            : "Toggle smooth scrolling and decorative animation"
-        }
-      >
-        <span aria-hidden="true">
-          {motionEnabled && !systemReduced ? "◉" : "○"}
-        </span>{" "}
-        Motion {systemReduced ? "reduced" : motionEnabled ? "on" : "off"}
-      </button>
+      <span className="cursor-aura" aria-hidden="true" />
     </>
   );
 }

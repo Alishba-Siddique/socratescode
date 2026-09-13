@@ -1153,49 +1153,6 @@
   gap: 20px;
 }
 
-.motion-control {
-  position: fixed;
-  bottom: 18px;
-  left: 20px;
-  z-index: 70;
-  min-height: 40px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 15px;
-  border: 1px solid #75493440;
-  border-radius: 24px;
-  background: #f9f8f6ed;
-  color: #754934;
-  font: 11px var(--sans);
-  cursor: pointer;
-  backdrop-filter: blur(10px);
-}
-.motion-control:focus-visible {
-  outline: 2px solid #754934;
-  outline-offset: 4px;
-}
-html[data-motion="off"] {
-  scroll-behavior: auto !important;
-}
-html[data-motion="off"] *,
-html[data-motion="off"] *::before,
-html[data-motion="off"] *::after {
-  animation: none !important;
-  transition-duration: 0s !important;
-}
-html[data-motion="off"] [data-reveal],
-html[data-motion="off"] [data-image-reveal],
-html[data-motion="off"] .reveal-line-inner {
-  opacity: 1 !important;
-  transform: none !important;
-  clip-path: none !important;
-}
-html[data-motion="off"] [data-ink] {
-  color: inherit !important;
-  -webkit-text-fill-color: currentColor !important;
-  background: none !important;
-}
 @media (max-width: 760px) {
   .principles {
     padding: 48px 20px 28px;
@@ -1275,12 +1232,6 @@ html[data-motion="off"] [data-ink] {
     flex-direction: column;
     align-items: flex-start;
   }
-  .motion-control {
-    bottom: 12px;
-    left: 12px;
-    min-height: 44px;
-    padding: 10px 13px;
-  }
 }
 @media (max-height: 540px) and (min-width: 761px) {
   .story-finale,
@@ -1299,24 +1250,64 @@ html[data-motion="off"] [data-ink] {
     max-height: 44svh;
   }
 }
-html[data-motion="reduced"] {
-  scroll-behavior: auto !important;
+
+/* Brand details: the native pointer remains usable over every control. */
+:root {
+  scrollbar-color: #754934 #eee5db;
+  scrollbar-width: thin;
 }
-html[data-motion="reduced"] *,
-html[data-motion="reduced"] *::before,
-html[data-motion="reduced"] *::after {
-  animation: none !important;
-  transition-duration: 0s !important;
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
 }
-html[data-motion="reduced"] [data-reveal],
-html[data-motion="reduced"] [data-image-reveal],
-html[data-motion="reduced"] .reveal-line-inner {
-  opacity: 1 !important;
-  transform: none !important;
-  clip-path: none !important;
+*::-webkit-scrollbar-track {
+  background: #eee5db;
 }
-html[data-motion="reduced"] [data-ink] {
-  color: inherit !important;
-  -webkit-text-fill-color: currentColor !important;
-  background: none !important;
+*::-webkit-scrollbar-thumb {
+  background: #754934;
+  border: 2px solid #eee5db;
+  border-radius: 12px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: #563322;
+}
+.cursor-aura {
+  display: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .cursor-aura {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 110;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+    will-change: transform;
+  }
+  .cursor-aura::before {
+    content: "";
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    left: -16px;
+    top: -16px;
+    border: 1px solid #75493499;
+    border-radius: 50%;
+    background: #75493408;
+    transition:
+      transform 0.25s,
+      background 0.25s;
+  }
+  .cursor-aura.is-visible {
+    opacity: 1;
+  }
+  .cursor-aura.is-interactive::before {
+    transform: scale(1.6);
+    background: #75493418;
+  }
+  .cursor-aura.is-input {
+    opacity: 0;
+  }
 }
